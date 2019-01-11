@@ -74,21 +74,21 @@ public class DiffDrive {
         rightDrive.setDirection(DcMotor.Direction.REVERSE);
         leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 
     public void execute() {
         double leftPower;
         double rightPower;
 
+        double turn = gamepad.right_stick_x * 0.2;
+
         double drive = -gamepad.left_stick_y;
         double driveSign = Math.copySign(1.0, drive);
         drive = driveSign * Math.pow(Math.abs(drive), 2);
+        drive = drive * (1 - Math.abs(turn));
 
-        double turn = gamepad.right_stick_x * 0.2;
-        leftPower = Range.clip(drive + turn, -1.0, 1.0);
-        rightPower = Range.clip(drive - turn, -1.0, 1.0);
+        leftPower = 0.65 * Range.clip(drive + turn, -1.0, 1.0);
+        rightPower = 0.65 * Range.clip(drive - turn, -1.0, 1.0);
 
         leftDrive.setPower(leftPower);
         rightDrive.setPower(rightPower);
