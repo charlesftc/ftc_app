@@ -32,7 +32,7 @@ public class Shoulder {
         double currentVel = rpsCalc.getRPS();
         double errorVel = targetVel - currentVel;
         double commandVel = currentVel + Range.clip(errorVel, -0.04, 0.04);
-        //commandVel = targetVel * 10;
+        //commandVel = targetVel * 10;2
 
         //shoulderMotor.setPower(commandVel * 128 / 15);
         shoulderMotor.setPower(commandVel / 0.17);
