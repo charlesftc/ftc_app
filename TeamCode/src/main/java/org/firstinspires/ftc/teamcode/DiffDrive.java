@@ -21,9 +21,6 @@ public class DiffDrive {
         this.opmode = opmode;
         this.gamepad = gamepad;
 
-        opmode.telemetry.addData("Status", "Initialized");
-        opmode.telemetry.update();
-
         leftDrive  = opmode.hardwareMap.get(DcMotor.class, "left_drive");
         rightDrive = opmode.hardwareMap.get(DcMotor.class, "right_drive");
 
@@ -50,8 +47,8 @@ public class DiffDrive {
         leftDrive.setPower(leftPower);
         rightDrive.setPower(rightPower);
 
-        opmode.telemetry.addData("Status", "Run Time: " + runtime.toString());
-        opmode.telemetry.addData("Motors", "left (%.2f), right (%.2f)", leftPower, rightPower);
-        opmode.telemetry.update();
+        //opmode.telemetry.addData("Status", "Run Time: " + runtime.toString());
+        //opmode.telemetry.addData("Motors", "left (%.2f), right (%.2f)", leftPower, rightPower);
+        //opmode.telemetry.update();
     }
 }

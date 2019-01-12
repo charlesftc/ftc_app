@@ -15,13 +15,20 @@ public class Teleop1 extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        DiffDrive diffDrive = new DiffDrive(this, gamepad1);
+        DiffDrive diffDrive = new DiffDrive(this, gamepad2);
+        Shoulder shoulder = new Shoulder(this, gamepad1);
+        Elbow elbow = new Elbow(this, gamepad1);
+
+        telemetry.addData("Status", "Initialized");
+        telemetry.update();
 
         waitForStart();
         runtime.reset();
 
         while (opModeIsActive()) {
-            diffDrive.execute();
+            //diffDrive.execute();
+            //shoulder.execute();
+            elbow.execute();
         }
     }
 }

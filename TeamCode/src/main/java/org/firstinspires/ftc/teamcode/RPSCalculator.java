@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import static java.lang.Thread.*;
 
 public class RPSCalculator extends Thread {
     private boolean run = true;
@@ -14,6 +16,7 @@ public class RPSCalculator extends Thread {
     private DcMotor motor;
     private int ticksPerRev;
     private double waitTime;
+    private ElapsedTime runtime;
 
     public RPSCalculator(DcMotor motor, int ticksPerRev, double waitTime) {
         this.motor = motor;
@@ -23,16 +26,21 @@ public class RPSCalculator extends Thread {
 
     public void run() {
         prevTick = motor.getCurrentPosition();
+        runtime = new ElapsedTime();
+
         while (run = true) {
             int tick = motor.getCurrentPosition();
             int deltaTick = tick - prevTick;
             double ticksPerSecond = deltaTick / waitTime;
             RPS = ticksPerSecond / ticksPerRev;
-            try {
-                Thread.sleep((long)waitTime * 1000);
+            //double currentTime = runtime.milliseconds();
+            busySleep(waitTime * 1000);
+            /*try {
+                opmode.sleep((long)waitTime * 1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
-            }
+            }*/
+            //currentTime = runtime.milliseconds() - currentTime;
             prevTick = tick;
         }
     }
@@ -43,5 +51,10 @@ public class RPSCalculator extends Thread {
 
     public double getRPS() {
         return RPS;
+    }
+
+    private void busySleep(double millis) {
+        double start = runtime.milliseconds();
+        while (runtime.milliseconds() - start < millis) {}
     }
 }
