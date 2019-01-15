@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -24,8 +25,8 @@ public class DiffDrive {
         leftDrive  = opmode.hardwareMap.get(DcMotor.class, "left_drive");
         rightDrive = opmode.hardwareMap.get(DcMotor.class, "right_drive");
 
-        leftDrive.setDirection(DcMotor.Direction.FORWARD);
-        rightDrive.setDirection(DcMotor.Direction.REVERSE);
+        leftDrive.setDirection(DcMotor.Direction.REVERSE);
+        rightDrive.setDirection(DcMotor.Direction.FORWARD);
         leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
@@ -34,9 +35,9 @@ public class DiffDrive {
         double leftPower;
         double rightPower;
 
-        double turn = gamepad.right_stick_x * 0.2;
+        double turn = gamepad.right_stick_x * 0.35;
 
-        double drive = -gamepad.left_stick_y;
+        double drive = -gamepad.left_stick_y * 0.8;
         double driveSign = Math.copySign(1.0, drive);
         drive = driveSign * Math.pow(Math.abs(drive), 2);
         drive = drive * (1 - Math.abs(turn));
