@@ -22,7 +22,7 @@ public class DPSCalculator extends Thread {
         while (run = true) {
             double pos = pot.getVoltage() / 0.01222;
             double deltaPos = pos - prevPos;
-            double DPS = deltaPos / waitTime;
+            DPS = deltaPos / waitTime;
 
             busySleep(waitTime * 1000);
 
