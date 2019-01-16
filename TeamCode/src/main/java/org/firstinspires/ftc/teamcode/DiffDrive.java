@@ -6,8 +6,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 public class DiffDrive {
-
-    // Declare OpMode members.
     //private ElapsedTime runtime = new ElapsedTime();
     private Teleop1 opmode;
     private Gamepad gamepad;

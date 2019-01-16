@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name="Teleop1", group="Linear")
 public class Teleop1 extends LinearOpMode {
-
     private ElapsedTime runtime = new ElapsedTime();
 
     @Override
