@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -9,11 +8,11 @@ import com.qualcomm.robotcore.util.Range;
 
 public class Grabber {
 
-    private ElapsedTime runtime = new ElapsedTime();
-    private CRServo leftGrabber;
-    private CRServo rightGrabber;
+    //private ElapsedTime runtime = new ElapsedTime();
     private Teleop1 opmode;
     private Gamepad gamepad;
+    private CRServo leftGrabber;
+    private CRServo rightGrabber;
     double power = 0.8;
     boolean grabbing = false;
     boolean releasing = false;

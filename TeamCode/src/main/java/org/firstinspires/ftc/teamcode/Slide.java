@@ -7,11 +7,10 @@ import com.qualcomm.robotcore.util.Range;
 
 public class Slide {
 
-    // Declare OpMode members.
-    private ElapsedTime runtime = new ElapsedTime();
-    private DcMotor slideMotor;
+    //private ElapsedTime runtime = new ElapsedTime();
     private Teleop1 opmode;
     private Gamepad gamepad;
+    private DcMotor slideMotor;
     ///private RPSCalculator rpsCalc;
 
     public Slide(Teleop1 opmode, Gamepad gamepad) {

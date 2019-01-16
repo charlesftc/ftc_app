@@ -6,18 +6,17 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Hardware;
 import com.qualcomm.robotcore.util.Range;
 
 public class Elbow {
 
     // Declare OpMode members.
-    private ElapsedTime runtime = new ElapsedTime();
+    //private ElapsedTime runtime = new ElapsedTime();
+    private Teleop1 opmode;
+    private Gamepad gamepad;
     private CRServo elbowLeft;
     private CRServo elbowRight;
     private AnalogInput pot;
-    private Teleop1 opmode;
-    private Gamepad gamepad;
     private DPSCalculator dpsCalc = new DPSCalculator(pot, 0.2);
     private double kP = 0.03;
 

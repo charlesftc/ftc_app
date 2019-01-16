@@ -7,11 +7,10 @@ import com.qualcomm.robotcore.util.Range;
 
 public class Shoulder {
 
-    // Declare OpMode members.
-    private ElapsedTime runtime = new ElapsedTime();
-    private DcMotor shoulderMotor;
+    //private ElapsedTime runtime = new ElapsedTime();
     private Teleop1 opmode;
     private Gamepad gamepad;
+    private DcMotor shoulderMotor;
     private RPSCalculator rpsCalc;
 
     public Shoulder(Teleop1 opmode, Gamepad gamepad) {
