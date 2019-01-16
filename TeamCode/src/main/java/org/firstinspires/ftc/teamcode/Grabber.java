@@ -88,6 +88,6 @@ public class Grabber {
         prevRightBumper = gamepad.right_bumper;
 
         //opmode.telemetry.addData("grabber", "grabbing, releasing", grabbing, releasing);
-        opmode.telemetry.update();
+        //opmode.telemetry.update();
     }
 }
