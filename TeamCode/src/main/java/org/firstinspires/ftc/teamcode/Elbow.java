@@ -43,4 +43,8 @@ public class Elbow {
         //opmode.telemetry.addData("Elbow", "power %.2f, stick %.2f, currentDPS %f", power, gamepad.right_stick_y, currentDPS);
         //opmode.telemetry.update();
     }
+
+    public void killThread() {
+        dpsCalc.end();
+    }
 }

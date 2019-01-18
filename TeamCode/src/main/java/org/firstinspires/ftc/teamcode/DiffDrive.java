@@ -89,9 +89,9 @@ public class DiffDrive {
             prevA = gamepad.a;
             prevB = gamepad.b;
 
-            opmode.telemetry.addData("Adjusting", "maxSpeed %.2f, turnSpeed %.2f", maxSpeed, turnSpeed);
+            //opmode.telemetry.addData("Adjusting", "maxSpeed %.2f, turnSpeed %.2f", maxSpeed, turnSpeed);
             //opmode.telemetry.addData("Temp", "targetVelL %f, currentVelL %f", targetVelL, currentVelL);
-            opmode.telemetry.update();
+            //opmode.telemetry.update();
         }
 
         //opmode.telemetry.addData("Status", "Run Time: " + runtime.toString());
