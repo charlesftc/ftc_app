@@ -14,9 +14,9 @@ public class DiffDrive {
     private DcMotor rightDrive;
     private RPSCalculator rpsCalcL = new RPSCalculator(leftDrive, 2240, 0.05);
     private RPSCalculator rpsCalcR = new RPSCalculator(rightDrive, 2240, 0.05);
-    private double maxSpeed = 0.6;
-    private double turnSpeed = 0.2;
-    private double exponent = 2;
+    private double maxSpeed = 0.8;
+    private double turnSpeed = 0.6;
+    private double exponent = 3;
     //private double accelRate = 0.4;
 
     private boolean canAdjustSpeeds = false;
@@ -89,9 +89,9 @@ public class DiffDrive {
             prevA = gamepad.a;
             prevB = gamepad.b;
 
-            //opmode.telemetry.addData("Adjusting", "maxSpeed %.2f, turnSpeed %.2f", maxSpeed, turnSpeed);
+            opmode.telemetry.addData("Adjusting", "maxSpeed %.2f, turnSpeed %.2f", maxSpeed, turnSpeed);
             //opmode.telemetry.addData("Temp", "targetVelL %f, currentVelL %f", targetVelL, currentVelL);
-            //opmode.telemetry.update();
+            opmode.telemetry.update();
         }
 
         //opmode.telemetry.addData("Status", "Run Time: " + runtime.toString());

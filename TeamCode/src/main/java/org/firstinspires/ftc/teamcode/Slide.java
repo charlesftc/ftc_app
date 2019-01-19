@@ -18,6 +18,7 @@ public class Slide {
 
         slideMotor = opmode.hardwareMap.get(DcMotor.class, "slide_motor");
         slideMotor.setDirection(DcMotor.Direction.FORWARD);
+        slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         //slideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         //rpsCalc = new RPSCalculator(shoulderMotor, ticksPerRev, 0.2);

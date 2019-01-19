@@ -1,15 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-
-import static java.lang.Double.MAX_VALUE;
 import static java.lang.Double.NaN;
 
 public class Shoulder {
@@ -17,15 +12,17 @@ public class Shoulder {
     private double prevTime = 0;
     private Teleop1 opmode;
     private Gamepad gamepad;
-    private DcMotorEx shoulderMotor;
+    private DcMotor shoulderMotor;
     private ShoulderPWMControl pwmControl;
 
     private double prevCommandVel = 0;
     private double accelTime = 600;
-    private double exponent = 1;
+    private double exponent = 2;
 
     private int verticalEncoderCount;
+    private int offset = 0;
     private boolean hasSetVertical = false;
+    private int nullZoneRadius = 300;
 
     private boolean prevX = false;
 
@@ -33,9 +30,9 @@ public class Shoulder {
         this.opmode = opmode;
         this.gamepad = gamepad;
 
-        shoulderMotor = opmode.hardwareMap.get(DcMotorEx.class, "shoulder_motor");
+        shoulderMotor = opmode.hardwareMap.get(DcMotor.class, "shoulder_motor");
         //shoulderMotor.setDirection(DcMotor.Direction.FORWARD);
-        shoulderMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        shoulderMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         pwmControl = new ShoulderPWMControl(shoulderMotor, gamepad);
         pwmControl.start();
@@ -56,13 +53,11 @@ public class Shoulder {
         commandVel = sign * Math.pow(Math.abs(commandVel), exponent);
 
         if (shouldUsePwm(commandVel)) {
-            pwmControl.setCommandVel(commandVel);
-            return;
+            pwmControl.setCommandVel(commandVel, offset);
         } else {
-            pwmControl.setCommandVel(NaN);
+            pwmControl.setCommandVel(NaN, offset);
+            shoulderMotor.setPower(commandVel);
         }
-
-        shoulderMotor.setPower(commandVel);
     }
 
 /*    private void busySleep(double millis) {
@@ -74,7 +69,7 @@ public class Shoulder {
         pwmControl.end();
     }
 
-    public boolean shouldUsePwm(double cmdVel) {
+    public boolean shouldUsePwm (double cmdVel) {
         int curPos = shoulderMotor.getCurrentPosition();
 
         if (prevX && !gamepad.x) {
@@ -84,16 +79,18 @@ public class Shoulder {
 
         prevX = gamepad.x;
 
-        if (!hasSetVertical) {
-            return gamepad.left_bumper;
-        }
+        offset = curPos - verticalEncoderCount;
 
-        int offset = curPos - verticalEncoderCount;
-
-        if (offset * cmdVel > 0) {
-            return true;
+        if (hasSetVertical) {
+            if (Math.abs(offset) < nullZoneRadius) {
+                return false;
+            } else if (offset * cmdVel > 0) {
+                return true;
+            } else {
+                return false;
+            }
         } else {
-            return false;
+            return gamepad.left_bumper;
         }
     }
 }
