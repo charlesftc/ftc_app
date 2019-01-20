@@ -131,7 +131,7 @@ public class Shoulder {
     }
 
     private double adjustForGravity(double commandVel) {
-        double deviation = Math.sin(getAngle());
+        double deviation = Math.sin(Math.toRadians(getAngle()));
         //double sign = Math.copySign(1.0, deviation);
         //deviation = sign * Math.pow(Math.abs(deviation), 0.8);
 
@@ -167,6 +167,6 @@ public class Shoulder {
     }
 
     public double getAngle() {
-        return ((double) (curPos - verticalEncoderCount) / ticksPerRev) * (2 * Math.PI);
+        return ((double) (curPos - verticalEncoderCount) / ticksPerRev) * 360;
     }
 }

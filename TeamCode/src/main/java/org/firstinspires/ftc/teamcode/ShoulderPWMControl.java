@@ -60,7 +60,7 @@ public class ShoulderPWMControl extends Thread {
         }
 
         if (!Double.isNaN(vel)) {
-            commandVel = vel * (1 - Math.sin(angle)) + 0.001;
+            commandVel = vel * (1 - Math.sin(Math.toRadians(angle))) + 0.001;
             setPower(Range.scale(Math.abs(commandVel), 0, 1, minPower, maxPower));
         } else {
             commandVel = vel;
