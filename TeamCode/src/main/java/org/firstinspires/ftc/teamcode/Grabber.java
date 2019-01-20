@@ -41,7 +41,7 @@ public class Grabber {
             rightGrabber.setPower(power);
         }
 
-        opmode.telemetry.addData("grabber", "power %f", leftGrabber.getPower());
+        //opmode.telemetry.addData("grabber", "power %f", leftGrabber.getPower());
 
         /*if (prevLeftBumper && !gamepad.left_bumper && leftGrabber.getPower() > 0.1 && grabbing) {
             leftGrabber.setPower(0);

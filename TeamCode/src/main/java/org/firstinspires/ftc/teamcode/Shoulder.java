@@ -20,11 +20,15 @@ public class Shoulder {
     private double exponent = 2;
 
     private int verticalEncoderCount;
-    private int offset = 0;
+    private int curPos;
     private boolean hasSetVertical = false;
-    private int nullZoneRadius = 300;
+    private int nullZoneRadius = 0;
 
     private boolean prevX = false;
+
+    private boolean canAdjustPower = false;
+    private boolean prevA = false;
+    private boolean prevB = false;
 
     public Shoulder(Teleop1 opmode, Gamepad gamepad) {
         this.opmode = opmode;
@@ -43,6 +47,8 @@ public class Shoulder {
         double elapsed = curTime - prevTime;
         prevTime = curTime;
 
+        curPos = shoulderMotor.getCurrentPosition();
+
         double targetVel = -gamepad.left_stick_y;
         double errorVel = targetVel - prevCommandVel;
         double commandVel = prevCommandVel + Range.clip(errorVel, -(elapsed / accelTime), elapsed / accelTime);
@@ -52,12 +58,30 @@ public class Shoulder {
         double sign = Math.copySign(1.0, commandVel);
         commandVel = sign * Math.pow(Math.abs(commandVel), exponent);
 
+        if (canAdjustPower) {
+            double adjustAmount = 0.01;
+
+            if (prevA && !gamepad.a) {
+                pwmControl.changePower(adjustAmount);
+            } else if (prevB && !gamepad.b) {
+                pwmControl.changePower(-adjustAmount);
+            }
+
+            prevA = gamepad.a;
+            prevB = gamepad.b;
+        }
+
+
+
         if (shouldUsePwm(commandVel)) {
-            pwmControl.setCommandVel(commandVel, offset);
+            pwmControl.setCommandVel(commandVel, getOffset());
         } else {
-            pwmControl.setCommandVel(NaN, offset);
+            pwmControl.setCommandVel(NaN, getOffset());
             shoulderMotor.setPower(commandVel);
         }
+
+        opmode.telemetry.addData("Shoulder", "power %f, commandVel %f, offset %d", pwmControl.getPower(), commandVel, getOffset());
+        opmode.telemetry.update();
     }
 
 /*    private void busySleep(double millis) {
@@ -70,8 +94,6 @@ public class Shoulder {
     }
 
     public boolean shouldUsePwm (double cmdVel) {
-        int curPos = shoulderMotor.getCurrentPosition();
-
         if (prevX && !gamepad.x) {
             verticalEncoderCount = curPos;
             hasSetVertical = true;
@@ -79,18 +101,26 @@ public class Shoulder {
 
         prevX = gamepad.x;
 
-        offset = curPos - verticalEncoderCount;
-
         if (hasSetVertical) {
-            if (Math.abs(offset) < nullZoneRadius) {
+            if (Math.abs(getOffset()) < nullZoneRadius) {
                 return false;
-            } else if (offset * cmdVel > 0) {
-                return true;
             } else {
-                return false;
+                return (getOffset()) * cmdVel > 0;
             }
         } else {
             return gamepad.left_bumper;
         }
+    }
+
+    public void setPowerAdjustments(boolean adjust) {
+        canAdjustPower = adjust;
+    }
+
+    public int getCurPos() {
+        return curPos;
+    }
+
+    public int getOffset () {
+        return curPos - verticalEncoderCount;
     }
 }

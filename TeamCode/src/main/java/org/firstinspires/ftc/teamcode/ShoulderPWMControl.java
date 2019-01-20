@@ -17,10 +17,10 @@ public class ShoulderPWMControl extends Thread {
     private double pulseDuration = 1;
     private double prevPulseStamp = 0;
 
-    private double power = 0.05;
+    private double power = 0.6;
     private double commandVel = NaN;
-    private double offset = 0;
-    private int ticksPerRev = 1680;
+    private double radians = 0;
+    private int ticksPerRev = 1680 * 8;
 
     public ShoulderPWMControl(DcMotor motor, Gamepad gamepad) {
         this.motor = motor;
@@ -56,10 +56,10 @@ public class ShoulderPWMControl extends Thread {
             motor.setPower(0);
         }
 
-        this.offset = offset / (ticksPerRev * 2);
+        radians = (double) (offset / ticksPerRev) * (2 * Math.PI);
 
         if (!Double.isNaN(vel)) {
-            commandVel = vel * offset;
+            commandVel = vel * (1 - Math.sin(radians)) + 0.001;
         } else {
             commandVel = vel;
         }
@@ -68,5 +68,13 @@ public class ShoulderPWMControl extends Thread {
     private void busySleep(double millis) {
         double start = runtime.milliseconds();
         while (runtime.milliseconds() - start < millis) {}
+    }
+
+    public void changePower(double change) {
+        power = power + change;
+    }
+
+    public double getPower () {
+        return power;
     }
 }
