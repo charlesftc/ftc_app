@@ -151,8 +151,8 @@ public class Elbow {
             powerControl(commandPower);
         }
 
-        opmode.telemetry.addData("Elbow", "kP %f, kI %f, maxI %f, i %f", kP, kI * 1000, maxIntegral, integral);
-        opmode.telemetry.update();
+        //opmode.telemetry.addData("Elbow", "kP %f, kI %f, maxI %f, i %f", kP, kI * 1000, maxIntegral, integral);
+        //opmode.telemetry.update();
     }
 
     public void killThread() {

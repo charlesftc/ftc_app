@@ -27,7 +27,7 @@ public class Teleop1 extends LinearOpMode {
 
         while (opModeIsActive()) {
             diffDrive.execute();
-            shoulder.execute();
+            shoulder.execute(-gamepad1.left_stick_y);
             elbow.execute();
             slide.execute();
             grabber.execute();

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -10,7 +11,7 @@ import static java.lang.Double.NaN;
 public class ShoulderPWMControl extends Thread {
     private boolean run = true;
 
-    private DcMotor motor;
+    private DcMotorEx motor;
     private Gamepad gamepad;
     private ElapsedTime runtime;
 
@@ -24,7 +25,7 @@ public class ShoulderPWMControl extends Thread {
 
     private double commandVel = NaN;
 
-    public ShoulderPWMControl(DcMotor motor, Gamepad gamepad) {
+    public ShoulderPWMControl(DcMotorEx motor, Gamepad gamepad) {
         this.motor = motor;
         this.gamepad = gamepad;
     }

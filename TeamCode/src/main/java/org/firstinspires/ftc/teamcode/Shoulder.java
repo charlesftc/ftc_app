@@ -1,27 +1,38 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+
 import static java.lang.Double.NaN;
 
 public class Shoulder {
+    private enum CommandMode {
+        PWR_CONTROL, PWM_CONTROL, POS_CONTROL;
+    }
+
     private ElapsedTime runtime = new ElapsedTime();
     private double prevTime = 0;
     private Teleop1 opmode;
     private Gamepad gamepad;
-    private DcMotor shoulderMotor;
+    private DcMotorEx shoulderMotor;
     private ShoulderPWMControl pwmControl;
+
+    private CommandMode commandMode = CommandMode.POS_CONTROL;
 
     private double prevCommandVel = 0;
     private double accelTime = 600;
     private double exponent = 2;
     private double maxGravityAdjustment = 0.2;
+    private double holdPower = 0.3;
 
-    private int verticalEncoderCount;
     private int curPos;
+    private int holdPos;
+    private int verticalEncoderCount;
     private int ticksPerRev = 1680 * 8;
     private boolean hasSetVertical = false;
     private int nullZoneRadius = 0;
@@ -36,7 +47,7 @@ public class Shoulder {
         this.opmode = opmode;
         this.gamepad = gamepad;
 
-        shoulderMotor = opmode.hardwareMap.get(DcMotor.class, "shoulder_motor");
+        shoulderMotor = opmode.hardwareMap.get(DcMotorEx.class, "shoulder_motor");
         //shoulderMotor.setDirection(DcMotor.Direction.FORWARD);
         shoulderMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
@@ -44,14 +55,14 @@ public class Shoulder {
         pwmControl.start();
     }
 
-    public void execute() {
+    public void execute(double targetVel) {
         double curTime = runtime.milliseconds();
         double elapsed = curTime - prevTime;
         prevTime = curTime;
 
         curPos = shoulderMotor.getCurrentPosition();
 
-        double commandVel = -gamepad.left_stick_y;
+        double commandVel = targetVel;
 
         double sign = Math.copySign(1.0, commandVel);
         commandVel = sign * Math.pow(Math.abs(commandVel), exponent);
@@ -65,10 +76,31 @@ public class Shoulder {
             commandVel = adjustForGravity(commandVel);
         }
 
-        if (shouldUsePwm(commandVel)) {
+        handleSetVertical();
+
+        if (shouldHoldPos(targetVel, shoulderMotor.getVelocity(AngleUnit.DEGREES) / 8)) {
+            if (commandMode != CommandMode.POS_CONTROL) {
+                commandMode = CommandMode.POS_CONTROL;
+                shoulderMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                shoulderMotor.setPower(holdPower);
+                holdPos = curPos;
+                shoulderMotor.setTargetPosition(holdPos);
+            }
+        } else if (shouldUsePwm(commandVel)) {
+            if (commandMode != CommandMode.PWM_CONTROL) {
+                commandMode = CommandMode.PWM_CONTROL;
+                shoulderMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            }
+
             pwmControl.setCommandVel(commandVel, getAngle());
         } else {
             pwmControl.setCommandVel(NaN, getAngle());
+
+            if (commandMode != CommandMode.PWR_CONTROL) {
+                commandMode = CommandMode.PWR_CONTROL;
+                shoulderMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            }
+
             shoulderMotor.setPower(commandVel);
         }
 
@@ -89,10 +121,19 @@ public class Shoulder {
         //opmode.telemetry.update();
     }
 
+    private void handleSetVertical() {
+        if (prevRB && !gamepad.right_bumper) {
+            verticalEncoderCount = curPos;
+            hasSetVertical = true;
+        }
+
+        prevRB = gamepad.right_bumper;
+    }
+
     private double adjustForGravity(double commandVel) {
         double deviation = Math.sin(getAngle());
-        double sign = Math.copySign(1.0, deviation);
-        deviation = sign * Math.pow(Math.abs(deviation), 0.8);
+        //double sign = Math.copySign(1.0, deviation);
+        //deviation = sign * Math.pow(Math.abs(deviation), 0.8);
 
         return Range.clip(commandVel - (deviation * maxGravityAdjustment), -1, 1);
     }
@@ -101,14 +142,7 @@ public class Shoulder {
         pwmControl.end();
     }
 
-    public boolean shouldUsePwm (double cmdVel) {
-        if (prevRB && !gamepad.right_bumper) {
-            verticalEncoderCount = curPos;
-            hasSetVertical = true;
-        }
-
-        prevRB = gamepad.right_bumper;
-
+    private boolean shouldUsePwm (double cmdVel) {
         if (hasSetVertical) {
             if (Math.abs(getAngle()) < nullZoneRadius) {
                 return false;
@@ -118,6 +152,10 @@ public class Shoulder {
         } else {
             return gamepad.left_bumper;
         }
+    }
+
+    private boolean shouldHoldPos(double targetVel, double currentVel) {
+        return Math.abs(targetVel) < 0.01 && Math.abs(currentVel) < 5;
     }
 
     /*public void setPowerAdjustments(boolean adjust) {
