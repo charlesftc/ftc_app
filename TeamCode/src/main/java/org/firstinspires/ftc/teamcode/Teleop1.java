@@ -14,7 +14,7 @@ public class Teleop1 extends LinearOpMode {
         DiffDrive diffDrive = new DiffDrive(this, gamepad2);
         diffDrive.setSpeedAdjustments(true);
         Shoulder shoulder = new Shoulder(this, gamepad1);
-        shoulder.setPowerAdjustments(true);
+        //shoulder.setPowerAdjustments(true);
         Elbow elbow = new Elbow(this, gamepad1);
         Slide slide = new Slide(this, gamepad1);
         Grabber grabber = new Grabber(this, gamepad2);

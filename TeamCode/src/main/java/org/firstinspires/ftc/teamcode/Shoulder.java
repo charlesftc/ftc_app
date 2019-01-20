@@ -26,11 +26,11 @@ public class Shoulder {
     private boolean hasSetVertical = false;
     private int nullZoneRadius = 0;
 
-    private boolean prevX = false;
+    private boolean prevRB = false;
 
-    private boolean canAdjustPower = false;
+    /*private boolean canAdjustPower = false;
     private boolean prevA = false;
-    private boolean prevB = false;
+    private boolean prevB = false;*/
 
     public Shoulder(Teleop1 opmode, Gamepad gamepad) {
         this.opmode = opmode;
@@ -85,12 +85,16 @@ public class Shoulder {
             prevB = gamepad.b;
         }*/
 
-        opmode.telemetry.addData("Shoulder", "power %f, commandVel %f, angle %f", pwmControl.getPower(), commandVel, getAngle());
-        opmode.telemetry.update();
+        //opmode.telemetry.addData("Shoulder", "power %f, commandVel %f, angle %f", pwmControl.getPower(), commandVel, getAngle());
+        //opmode.telemetry.update();
     }
 
     private double adjustForGravity(double commandVel) {
-        return Range.clip(commandVel - (Math.sin(getAngle()) * maxGravityAdjustment), -1, 1);
+        double deviation = Math.sin(getAngle());
+        double sign = Math.copySign(1.0, deviation);
+        deviation = sign * Math.pow(Math.abs(deviation), 0.8);
+
+        return Range.clip(commandVel - (deviation * maxGravityAdjustment), -1, 1);
     }
 
     public void killThread() {
@@ -98,12 +102,12 @@ public class Shoulder {
     }
 
     public boolean shouldUsePwm (double cmdVel) {
-        if (prevX && !gamepad.x) {
+        if (prevRB && !gamepad.right_bumper) {
             verticalEncoderCount = curPos;
             hasSetVertical = true;
         }
 
-        prevX = gamepad.x;
+        prevRB = gamepad.right_bumper;
 
         if (hasSetVertical) {
             if (Math.abs(getAngle()) < nullZoneRadius) {
@@ -116,9 +120,9 @@ public class Shoulder {
         }
     }
 
-    public void setPowerAdjustments(boolean adjust) {
+    /*public void setPowerAdjustments(boolean adjust) {
         canAdjustPower = adjust;
-    }
+    }*/
 
     public int getCurPos() {
         return curPos;
