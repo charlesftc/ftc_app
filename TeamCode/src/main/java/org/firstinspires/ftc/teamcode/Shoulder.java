@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 import static java.lang.Double.NaN;
+import static java.lang.Double.isNaN;
 
 public class Shoulder {
     private enum CommandMode {
@@ -28,10 +29,19 @@ public class Shoulder {
     private double accelTime = 600;
     private double exponent = 2;
     private double maxGravityAdjustment = 0.2;
-    private double holdPower = 0.3;
+    private double holdPower = 0.2;
+
+    private double kP = 0.045;
+    private double maxPosPower = 0.8;
+
+    private double goalAngle = NaN;
+
+    private double storedAngle;
+    private boolean prevX = false;
+    private boolean prevY = false;
 
     private int curPos;
-    private int holdPos;
+    //private int holdPos;
     private int verticalEncoderCount;
     private int ticksPerRev = 1680 * 8;
     private boolean hasSetVertical = false;
@@ -55,12 +65,36 @@ public class Shoulder {
         pwmControl.start();
     }
 
-    public void execute(double targetVel) {
+    public void control(double stickPos) {
+        updateCurPos();
+
+        if (Math.abs(stickPos) > 0.01) {
+            goalAngle = NaN;
+        }
+
+        if (!Double.isNaN(goalAngle)) {
+            positionControl(goalAngle);
+        } else {
+            stickControl(stickPos);
+        }
+
+        if (prevX && !gamepad.x) {
+            storedAngle = getAngle();
+        } else if (prevY && !gamepad.y) {
+            goalAngle = storedAngle;
+        }
+
+        prevX = gamepad.x;
+        prevY = gamepad.y;
+
+        opmode.telemetry.addData("ShoulderPosTest", "current angle %.3f, goal angle, %.3f, stored angle %.3f", getAngle(), goalAngle, storedAngle);
+        opmode.telemetry.update();
+    }
+
+    public void stickControl(double targetVel) {
         double curTime = runtime.milliseconds();
         double elapsed = curTime - prevTime;
         prevTime = curTime;
-
-        curPos = shoulderMotor.getCurrentPosition();
 
         double commandVel = targetVel;
 
@@ -72,19 +106,15 @@ public class Shoulder {
 
         prevCommandVel = commandVel;
 
+        handleSetVertical();
+
         if (hasSetVertical) {
             commandVel = adjustForGravity(commandVel);
         }
 
-        handleSetVertical();
-
         if (shouldHoldPos(targetVel, shoulderMotor.getVelocity(AngleUnit.DEGREES) / 8)) {
             if (commandMode != CommandMode.POS_CONTROL) {
-                commandMode = CommandMode.POS_CONTROL;
-                shoulderMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                shoulderMotor.setPower(holdPower);
-                holdPos = curPos;
-                shoulderMotor.setTargetPosition(holdPos);
+                holdPos(curPos);
             }
         } else if (shouldUsePwm(commandVel)) {
             if (commandMode != CommandMode.PWM_CONTROL) {
@@ -104,7 +134,7 @@ public class Shoulder {
             shoulderMotor.setPower(commandVel);
         }
 
-/*        if (canAdjustPower) {
+        /*if (canAdjustPower) {
             double adjustAmount = 0.01;
 
             if (prevA && !gamepad.a) {
@@ -119,6 +149,34 @@ public class Shoulder {
 
         //opmode.telemetry.addData("Shoulder", "power %f, commandVel %f, angle %f", pwmControl.getPower(), commandVel, getAngle());
         //opmode.telemetry.update();
+    }
+
+    public void positionControl(double angle) {
+        double errorAngle = angle - getAngle();
+
+        /*if (commandMode == CommandMode.PWM_CONTROL) {
+            kP += 0.1;
+        }*/
+
+        double velocity = Range.clip(errorAngle * kP, -maxPosPower, maxPosPower);
+
+        if (Math.abs(errorAngle) > 2) {
+            stickControl(velocity);
+        } else {
+            holdAngle(angle);
+        }
+    }
+
+    private void holdPos(int pos) {
+        commandMode = CommandMode.POS_CONTROL;
+        shoulderMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        shoulderMotor.setPower(holdPower);
+        shoulderMotor.setTargetPosition(pos);
+    }
+
+    private void holdAngle(double angle) {
+        int pos = (int) (((angle / 360) * ticksPerRev) + verticalEncoderCount);
+        holdPos(pos);
     }
 
     private void handleSetVertical() {
@@ -162,8 +220,12 @@ public class Shoulder {
         canAdjustPower = adjust;
     }*/
 
-    public int getCurPos() {
-        return curPos;
+    public void setGoalAngle(double angle) {
+        goalAngle = angle;
+    }
+
+    public void updateCurPos() {
+        curPos = shoulderMotor.getCurrentPosition();
     }
 
     public double getAngle() {

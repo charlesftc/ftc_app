@@ -30,7 +30,7 @@ public class Elbow {
 
     private double targetPos;
 
-    private double storedPos;
+    /*private double storedPos;
     private boolean prevX = false;
     private boolean prevY = false;
     private boolean prevA = false;
@@ -38,7 +38,7 @@ public class Elbow {
     private boolean prevUp = false;
     private boolean prevDown = false;
     private boolean prevLeft = false;
-    private boolean prevRight = false;
+    private boolean prevRight = false;*/
 
     private double prevTime;
 
@@ -77,7 +77,7 @@ public class Elbow {
         elbowLeft.setPower(power);
         elbowRight.setPower(power);
 
-        opmode.telemetry.addData("Error", "error %f", errorPos);
+        //opmode.telemetry.addData("Error", "error %f", errorPos);
     }
 
     private void powerControl(double power) {
@@ -102,7 +102,7 @@ public class Elbow {
     public void execute() {
         double commandPower = -gamepad.right_stick_y;
 
-        double adjustAmount = 0.000001;
+        /*double adjustAmount = 0.000001;
         if (prevX && !gamepad.x) {
             storedPos = dpsCalc.getPos();
         } else if (prevY && !gamepad.y) {
@@ -135,7 +135,7 @@ public class Elbow {
         prevUp = gamepad.dpad_up;
         prevDown = gamepad.dpad_down;
         prevLeft = gamepad.dpad_left;
-        prevRight = gamepad.dpad_right;
+        prevRight = gamepad.dpad_right;*/
 
         if (Math.abs(commandPower) < 0.01) {
             if (commandMode != CommandMode.POS_CONTROL) {

@@ -19,7 +19,7 @@ public class ShoulderPWMControl extends Thread {
     private double pulseDuration = 1;
     private double prevPulseStamp = 0;
 
-    private double maxPower = 0.6;
+    private double maxPower = 0.7;
     private double minPower = 0.1;
     private double power = 0.1;
 
