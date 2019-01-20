@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import static java.lang.Double.NaN;
 
@@ -17,10 +18,11 @@ public class ShoulderPWMControl extends Thread {
     private double pulseDuration = 1;
     private double prevPulseStamp = 0;
 
-    private double power = 0.6;
+    private double maxPower = 0.6;
+    private double minPower = 0.1;
+    private double power = 0.1;
+
     private double commandVel = NaN;
-    private double radians = 0;
-    private int ticksPerRev = 1680 * 8;
 
     public ShoulderPWMControl(DcMotor motor, Gamepad gamepad) {
         this.motor = motor;
@@ -51,15 +53,14 @@ public class ShoulderPWMControl extends Thread {
         run = false;
     }
 
-    public void setCommandVel(double vel, int offset) {
+    public void setCommandVel(double vel, double angle) {
         if (vel == 0) {
             motor.setPower(0);
         }
 
-        radians = (double) (offset / ticksPerRev) * (2 * Math.PI);
-
         if (!Double.isNaN(vel)) {
-            commandVel = vel * (1 - Math.sin(radians)) + 0.001;
+            commandVel = vel * (1 - Math.sin(angle)) + 0.001;
+            setPower(Range.scale(Math.abs(commandVel), 0, 1, minPower, maxPower));
         } else {
             commandVel = vel;
         }
@@ -70,8 +71,8 @@ public class ShoulderPWMControl extends Thread {
         while (runtime.milliseconds() - start < millis) {}
     }
 
-    public void changePower(double change) {
-        power = power + change;
+    public void setPower(double pwr) {
+        power = pwr;
     }
 
     public double getPower () {

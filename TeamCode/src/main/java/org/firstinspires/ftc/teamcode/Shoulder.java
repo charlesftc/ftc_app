@@ -18,9 +18,11 @@ public class Shoulder {
     private double prevCommandVel = 0;
     private double accelTime = 600;
     private double exponent = 2;
+    private double maxGravityAdjustment = 0.2;
 
     private int verticalEncoderCount;
     private int curPos;
+    private int ticksPerRev = 1680 * 8;
     private boolean hasSetVertical = false;
     private int nullZoneRadius = 0;
 
@@ -49,16 +51,28 @@ public class Shoulder {
 
         curPos = shoulderMotor.getCurrentPosition();
 
-        double targetVel = -gamepad.left_stick_y;
-        double errorVel = targetVel - prevCommandVel;
-        double commandVel = prevCommandVel + Range.clip(errorVel, -(elapsed / accelTime), elapsed / accelTime);
-
-        prevCommandVel = commandVel;
+        double commandVel = -gamepad.left_stick_y;
 
         double sign = Math.copySign(1.0, commandVel);
         commandVel = sign * Math.pow(Math.abs(commandVel), exponent);
 
-        if (canAdjustPower) {
+        double errorVel = commandVel - prevCommandVel;
+        commandVel = prevCommandVel + Range.clip(errorVel, -(elapsed / accelTime), elapsed / accelTime);
+
+        prevCommandVel = commandVel;
+
+        if (hasSetVertical) {
+            commandVel = adjustForGravity(commandVel);
+        }
+
+        if (shouldUsePwm(commandVel)) {
+            pwmControl.setCommandVel(commandVel, getAngle());
+        } else {
+            pwmControl.setCommandVel(NaN, getAngle());
+            shoulderMotor.setPower(commandVel);
+        }
+
+/*        if (canAdjustPower) {
             double adjustAmount = 0.01;
 
             if (prevA && !gamepad.a) {
@@ -69,25 +83,15 @@ public class Shoulder {
 
             prevA = gamepad.a;
             prevB = gamepad.b;
-        }
+        }*/
 
-
-
-        if (shouldUsePwm(commandVel)) {
-            pwmControl.setCommandVel(commandVel, getOffset());
-        } else {
-            pwmControl.setCommandVel(NaN, getOffset());
-            shoulderMotor.setPower(commandVel);
-        }
-
-        opmode.telemetry.addData("Shoulder", "power %f, commandVel %f, offset %d", pwmControl.getPower(), commandVel, getOffset());
+        opmode.telemetry.addData("Shoulder", "power %f, commandVel %f, angle %f", pwmControl.getPower(), commandVel, getAngle());
         opmode.telemetry.update();
     }
 
-/*    private void busySleep(double millis) {
-        double start = runtime.milliseconds();
-        while (runtime.milliseconds() - start < millis) {}
-    }*/
+    private double adjustForGravity(double commandVel) {
+        return Range.clip(commandVel - (Math.sin(getAngle()) * maxGravityAdjustment), -1, 1);
+    }
 
     public void killThread() {
         pwmControl.end();
@@ -102,10 +106,10 @@ public class Shoulder {
         prevX = gamepad.x;
 
         if (hasSetVertical) {
-            if (Math.abs(getOffset()) < nullZoneRadius) {
+            if (Math.abs(getAngle()) < nullZoneRadius) {
                 return false;
             } else {
-                return (getOffset()) * cmdVel > 0;
+                return (getAngle()) * cmdVel > 0;
             }
         } else {
             return gamepad.left_bumper;
@@ -120,7 +124,7 @@ public class Shoulder {
         return curPos;
     }
 
-    public int getOffset () {
-        return curPos - verticalEncoderCount;
+    public double getAngle() {
+        return ((double) (curPos - verticalEncoderCount) / ticksPerRev) * (2 * Math.PI);
     }
 }
