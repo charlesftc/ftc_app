@@ -9,10 +9,9 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 import static java.lang.Double.NaN;
-import static java.lang.Double.isNaN;
 
 public class Shoulder {
-    private enum CommandMode {
+    private enum ControlMode {
         PWR_CONTROL, PWM_CONTROL, POS_CONTROL;
     }
 
@@ -23,7 +22,7 @@ public class Shoulder {
     private DcMotorEx shoulderMotor;
     private ShoulderPWMControl pwmControl;
 
-    private CommandMode commandMode = CommandMode.POS_CONTROL;
+    private ControlMode controlMode = ControlMode.POS_CONTROL;
 
     private double prevCommandVel = 0;
     private double accelTime = 600;
@@ -31,10 +30,10 @@ public class Shoulder {
     private double maxGravityAdjustment = 0.2;
     private double holdPower = 0.2;
 
-    private double kP = 0.045;
+    private double kP = 0.04;
     private double maxPosPower = 0.8;
 
-    private double goalAngle = NaN;
+    private double goal = NaN;
 
     private double storedAngle;
     private boolean prevX = false;
@@ -69,11 +68,11 @@ public class Shoulder {
         updateCurPos();
 
         if (Math.abs(stickPos) > 0.01) {
-            goalAngle = NaN;
+            goal = NaN;
         }
 
-        if (!Double.isNaN(goalAngle)) {
-            positionControl(goalAngle);
+        if (!Double.isNaN(goal)) {
+            positionControl(goal);
         } else {
             stickControl(stickPos);
         }
@@ -81,14 +80,14 @@ public class Shoulder {
         if (prevX && !gamepad.x) {
             storedAngle = getAngle();
         } else if (prevY && !gamepad.y) {
-            goalAngle = storedAngle;
+            goal = storedAngle;
         }
 
         prevX = gamepad.x;
         prevY = gamepad.y;
 
-        opmode.telemetry.addData("ShoulderPosTest", "current angle %.3f, goal angle, %.3f, stored angle %.3f", getAngle(), goalAngle, storedAngle);
-        opmode.telemetry.update();
+        opmode.telemetry.addData("ShoulderPosTest", "cur angle %.3f, goal angle %.3f", getAngle(), goal);
+        //opmode.telemetry.update();
     }
 
     public void stickControl(double targetVel) {
@@ -113,12 +112,12 @@ public class Shoulder {
         }
 
         if (shouldHoldPos(targetVel, shoulderMotor.getVelocity(AngleUnit.DEGREES) / 8)) {
-            if (commandMode != CommandMode.POS_CONTROL) {
+            if (controlMode != ControlMode.POS_CONTROL) {
                 holdPos(curPos);
             }
         } else if (shouldUsePwm(commandVel)) {
-            if (commandMode != CommandMode.PWM_CONTROL) {
-                commandMode = CommandMode.PWM_CONTROL;
+            if (controlMode != ControlMode.PWM_CONTROL) {
+                controlMode = ControlMode.PWM_CONTROL;
                 shoulderMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             }
 
@@ -126,8 +125,8 @@ public class Shoulder {
         } else {
             pwmControl.setCommandVel(NaN, getAngle());
 
-            if (commandMode != CommandMode.PWR_CONTROL) {
-                commandMode = CommandMode.PWR_CONTROL;
+            if (controlMode != ControlMode.PWR_CONTROL) {
+                controlMode = ControlMode.PWR_CONTROL;
                 shoulderMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             }
 
@@ -154,11 +153,13 @@ public class Shoulder {
     public void positionControl(double angle) {
         double errorAngle = angle - getAngle();
 
-        /*if (commandMode == CommandMode.PWM_CONTROL) {
-            kP += 0.1;
-        }*/
+        double effectiveKP = kP;
 
-        double velocity = Range.clip(errorAngle * kP, -maxPosPower, maxPosPower);
+        if (controlMode == ControlMode.PWM_CONTROL) {
+            effectiveKP += 0.04;
+        }
+
+        double velocity = Range.clip(errorAngle * effectiveKP, -maxPosPower, maxPosPower);
 
         if (Math.abs(errorAngle) > 2) {
             stickControl(velocity);
@@ -168,7 +169,7 @@ public class Shoulder {
     }
 
     private void holdPos(int pos) {
-        commandMode = CommandMode.POS_CONTROL;
+        controlMode = ControlMode.POS_CONTROL;
         shoulderMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         shoulderMotor.setPower(holdPower);
         shoulderMotor.setTargetPosition(pos);
@@ -220,15 +221,15 @@ public class Shoulder {
         canAdjustPower = adjust;
     }*/
 
-    public void setGoalAngle(double angle) {
-        goalAngle = angle;
-    }
-
     public void updateCurPos() {
         curPos = shoulderMotor.getCurrentPosition();
     }
 
     public double getAngle() {
         return ((double) (curPos - verticalEncoderCount) / ticksPerRev) * 360;
+    }
+
+    public void setGoal(double angle) {
+        goal = angle;
     }
 }

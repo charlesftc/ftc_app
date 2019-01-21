@@ -38,7 +38,7 @@ public class DiffDrive {
         //rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
-    public void execute() {
+    public void control() {
         double targetVelL;
         double targetVelR;
         double drive = gamepad.left_stick_y;

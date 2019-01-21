@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 public class Elbow {
-    private enum CommandMode {
+    private enum ControlMode {
         PWR_CONTROL, POS_CONTROL;
     }
 
@@ -19,7 +19,7 @@ public class Elbow {
     private CRServo elbowRight;
     private AnalogInput pot;
     private DPSCalculator dpsCalc;
-    private CommandMode commandMode = CommandMode.PWR_CONTROL;
+    private ControlMode controlMode = ControlMode.PWR_CONTROL;
     //private double maxDPS = 30;
     //private double velKP = 0.03;
     private double kP = 0.05;
@@ -99,7 +99,7 @@ public class Elbow {
         opmode.telemetry.update();
     }*/
 
-    public void execute() {
+    public void control() {
         double commandPower = -gamepad.right_stick_y;
 
         /*double adjustAmount = 0.000001;
@@ -138,8 +138,8 @@ public class Elbow {
         prevRight = gamepad.dpad_right;*/
 
         if (Math.abs(commandPower) < 0.01) {
-            if (commandMode != CommandMode.POS_CONTROL) {
-                commandMode = CommandMode.POS_CONTROL;
+            if (controlMode != ControlMode.POS_CONTROL) {
+                controlMode = ControlMode.POS_CONTROL;
                 targetPos = dpsCalc.getPos();
                 integral = 0;
                 prevTime = runtime.milliseconds();
@@ -147,7 +147,7 @@ public class Elbow {
 
             positionControl(targetPos);
         } else {
-            commandMode = CommandMode.PWR_CONTROL;
+            controlMode = ControlMode.PWR_CONTROL;
             powerControl(commandPower);
         }
 

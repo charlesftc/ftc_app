@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -26,11 +25,11 @@ public class Teleop1 extends LinearOpMode {
         runtime.reset();
 
         while (opModeIsActive()) {
-            diffDrive.execute();
+            diffDrive.control();
             shoulder.control(-gamepad1.left_stick_y);
-            elbow.execute();
-            slide.execute();
-            grabber.execute();
+            elbow.control();
+            slide.control(gamepad1.right_trigger - gamepad1.left_trigger);
+            grabber.control();
         }
 
         shoulder.killThread();

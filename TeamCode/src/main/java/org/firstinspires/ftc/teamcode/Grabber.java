@@ -28,7 +28,7 @@ public class Grabber {
         leftGrabber.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
-    public void execute() {
+    public void control() {
         //if (((prevLeftBumper && !gamepad.left_bumper) || (prevRightBumper && !gamepad.right_bumper)) && leftGrabber.getPower() > 0.3) {
         if (gamepad.x) {
             leftGrabber.setPower(0);
