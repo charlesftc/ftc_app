@@ -1,10 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 public class DiffDrive {
     //private ElapsedTime runtime = new ElapsedTime();
@@ -12,18 +9,19 @@ public class DiffDrive {
     private Gamepad gamepad;
     private DcMotor leftDrive;
     private DcMotor rightDrive;
-    private RPSCalculator rpsCalcL = new RPSCalculator(leftDrive, 2240, 0.05);
-    private RPSCalculator rpsCalcR = new RPSCalculator(rightDrive, 2240, 0.05);
-    private double maxSpeed = 0.8;
-    private double turnSpeed = 0.6;
-    private double exponent = 3;
+    //private RPSCalculator rpsCalcL = new RPSCalculator(leftDrive, 2240, 0.05);
+    //private RPSCalculator rpsCalcR = new RPSCalculator(rightDrive, 2240, 0.05);
+    private double maxSpeeds[] = {0.45, 0.6, 0.1};
+    private double turnSpeeds[] = {0.2, 0.3, 0.4};
+
+    private double exponent = 1.5;
     //private double accelRate = 0.4;
 
     private boolean canAdjustSpeeds = false;
-    private boolean prevX = false;
-    private boolean prevY = false;
-    private boolean prevA = false;
-    private boolean prevB = false;
+    private boolean prevUp = false;
+    private boolean prevDown = false;
+    private boolean prevRight = false;
+    private boolean prevLeft = false;
 
     public DiffDrive(Teleop1 opmode, Gamepad gamepad) {
         this.opmode = opmode;
@@ -38,18 +36,22 @@ public class DiffDrive {
         //rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
-    public void control() {
+    public void control(double leftY, double rightX) {
+        int index = getSpeedIndex();
+
         double targetVelL;
         double targetVelR;
-        double drive = gamepad.left_stick_y;
-        double turn = gamepad.right_stick_x;
+        double drive = leftY;
+        double turn = rightX;
 
         double driveSign = Math.copySign(1.0, drive);
-        drive = driveSign * Math.pow(Math.abs(drive), exponent) * maxSpeed;
+        drive = driveSign * Math.pow(Math.abs(drive), exponent);
 
-        turn = turn * turnSpeed;
+        drive = drive * maxSpeeds[index];
 
-        drive = drive * (maxSpeed - Math.abs(turn));
+        turn = turn * turnSpeeds[index];
+
+        drive = drive * (maxSpeeds[index] - Math.abs(turn));
 
         targetVelL = drive + turn;
         targetVelR = drive - turn;
@@ -70,33 +72,44 @@ public class DiffDrive {
 
         if (canAdjustSpeeds) {
             double adjustAmount = 0.05;
-            if (prevX && !gamepad.x) {
-                maxSpeed += adjustAmount;
+            if (prevUp && !gamepad.dpad_up) {
+                maxSpeeds[index] += adjustAmount;
                 //accelRate += 0.1;
-            } else if (prevY && !gamepad.y) {
-                maxSpeed -= adjustAmount;
+            } else if (prevDown && !gamepad.dpad_down) {
+                maxSpeeds[index] -= adjustAmount;
                 //accelRate -= 0.1;
             }
 
-            if (prevA && !gamepad.a) {
-                turnSpeed += adjustAmount;
-            } else if (prevB && !gamepad.b) {
-                turnSpeed -= adjustAmount;
+            if (prevRight && !gamepad.dpad_right) {
+                turnSpeeds[index] += adjustAmount;
+            } else if (prevLeft && !gamepad.dpad_left) {
+                turnSpeeds[index] -= adjustAmount;
             }
 
-            prevX = gamepad.x;
-            prevY = gamepad.y;
-            prevA = gamepad.a;
-            prevB = gamepad.b;
+            prevUp = gamepad.dpad_up;
+            prevDown = gamepad.dpad_down;
+            prevRight = gamepad.dpad_right;
+            prevLeft = gamepad.dpad_left;
 
-            //opmode.telemetry.addData("Adjusting", "maxSpeed %.2f, turnSpeed %.2f", maxSpeed, turnSpeed);
+            opmode.telemetry.addData("Adjusting", "maxSpeed %.2f, turnSpeed %.2f", maxSpeeds[index], turnSpeeds[index]);
+            opmode.telemetry.addData("Velocity", "drive %.2f, turn %.2f", drive, turn);
             //opmode.telemetry.addData("Temp", "targetVelL %f, currentVelL %f", targetVelL, currentVelL);
-            //opmode.telemetry.update();
+            opmode.telemetry.update();
         }
 
         //opmode.telemetry.addData("Status", "Run Time: " + runtime.toString());
         //opmode.telemetry.addData("Motors", "left %.2f, right %.2f", leftPower, rightPower);
         //opmode.telemetry.update();
+    }
+
+    private int getSpeedIndex() {
+        if (gamepad.left_trigger > 0.5) {
+            return 0;
+        } else if (gamepad.right_trigger > 0.5) {
+            return 2;
+        } else {
+            return 1;
+        }
     }
 
     public void setSpeedAdjustments(boolean b) {

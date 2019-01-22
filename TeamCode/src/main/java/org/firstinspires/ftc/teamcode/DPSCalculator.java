@@ -17,10 +17,10 @@ public class DPSCalculator extends Thread {
     }
 
     public void run() {
-        prevPos = getPos();
+        prevPos = getAngle();
 
         while (run = true) {
-            double pos = getPos();
+            double pos = getAngle();
             double deltaPos = pos - prevPos;
             DPS = deltaPos / waitTime;
 
@@ -38,7 +38,7 @@ public class DPSCalculator extends Thread {
         return DPS;
     }
 
-    public double getPos() {
+    public double getAngle() {
         return pot.getVoltage() / 0.01222;
     }
 

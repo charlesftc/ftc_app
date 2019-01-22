@@ -31,7 +31,7 @@ public class Shoulder {
     private double holdPower = 0.2;
 
     private double kP = 0.04;
-    private double maxPosPower = 0.8;
+    private double maxPosPower = 0.65;
 
     private double goal = NaN;
 
@@ -46,7 +46,7 @@ public class Shoulder {
     private boolean hasSetVertical = false;
     private int nullZoneRadius = 0;
 
-    private boolean prevRB = false;
+    private boolean prevLB = false;
 
     /*private boolean canAdjustPower = false;
     private boolean prevA = false;
@@ -65,7 +65,8 @@ public class Shoulder {
     }
 
     public void control(double stickPos) {
-        updateCurPos();
+        curPos = shoulderMotor.getCurrentPosition();
+        handleSetVertical();
 
         if (Math.abs(stickPos) > 0.01) {
             goal = NaN;
@@ -105,15 +106,14 @@ public class Shoulder {
 
         prevCommandVel = commandVel;
 
-        handleSetVertical();
-
         if (hasSetVertical) {
             commandVel = adjustForGravity(commandVel);
         }
 
         if (shouldHoldPos(targetVel, shoulderMotor.getVelocity(AngleUnit.DEGREES) / 8)) {
             if (controlMode != ControlMode.POS_CONTROL) {
-                holdPos(curPos);
+                setGoal(getAngle());
+                positionControl(goal);
             }
         } else if (shouldUsePwm(commandVel)) {
             if (controlMode != ControlMode.PWM_CONTROL) {
@@ -181,12 +181,12 @@ public class Shoulder {
     }
 
     private void handleSetVertical() {
-        if (prevRB && !gamepad.right_bumper) {
+        if (prevLB && !gamepad.left_bumper) {
             verticalEncoderCount = curPos;
             hasSetVertical = true;
         }
 
-        prevRB = gamepad.right_bumper;
+        prevLB = gamepad.left_bumper;
     }
 
     private double adjustForGravity(double commandVel) {
@@ -202,15 +202,7 @@ public class Shoulder {
     }
 
     private boolean shouldUsePwm (double cmdVel) {
-        if (hasSetVertical) {
-            if (Math.abs(getAngle()) < nullZoneRadius) {
-                return false;
-            } else {
-                return (getAngle()) * cmdVel > 0;
-            }
-        } else {
-            return gamepad.left_bumper;
-        }
+        return hasSetVertical && !(Math.abs(getAngle()) < nullZoneRadius) && (getAngle()) * cmdVel > 0;
     }
 
     private boolean shouldHoldPos(double targetVel, double currentVel) {
@@ -220,10 +212,6 @@ public class Shoulder {
     /*public void setPowerAdjustments(boolean adjust) {
         canAdjustPower = adjust;
     }*/
-
-    public void updateCurPos() {
-        curPos = shoulderMotor.getCurrentPosition();
-    }
 
     public double getAngle() {
         return ((double) (curPos - verticalEncoderCount) / ticksPerRev) * 360;

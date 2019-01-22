@@ -33,10 +33,10 @@ public class Grabber {
         if (gamepad.x) {
             leftGrabber.setPower(0);
             rightGrabber.setPower(0);
-        } else if (gamepad.left_bumper) {
+        } else if (gamepad.right_bumper) {
             leftGrabber.setPower(-power);
             rightGrabber.setPower(-power);
-        } else if (gamepad.right_bumper) {
+        } else if (gamepad.left_bumper) {
             leftGrabber.setPower(power);
             rightGrabber.setPower(power);
         }

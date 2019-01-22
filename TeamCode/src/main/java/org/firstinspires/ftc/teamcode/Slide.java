@@ -10,7 +10,6 @@ public class Slide {
         PWR_CONTROL, POS_CONTROL;
     }
 
-    //private ElapsedTime runtime = new ElapsedTime();
     private Teleop1 opmode;
     private Gamepad gamepad;
     private DcMotor slideMotor;
@@ -18,11 +17,11 @@ public class Slide {
 
     private int origPos;
     private int ticksPerLength = 800;
-    private double holdPower = 0.1;
-    private double posPower = 0.8;
+    private double maxPosPower = 0.8;
+
     private double goal = NaN;
 
-    private double storedPos;
+    private double storedExt;
     private boolean prevA = false;
     private boolean prevB = false;
     ///private RPSCalculator rpsCalc;
@@ -48,15 +47,15 @@ public class Slide {
         }
 
         if (!Double.isNaN(goal)) {
-            positionControl(goal, posPower);
+            positionControl(goal);
         } else {
             triggerControl(power);
         }
 
         if (prevA && !gamepad.a) {
-            storedPos = getPosition();
+            storedExt = getExtension();
         } else if (prevB && !gamepad.b) {
-            goal = storedPos;
+            goal = storedExt;
         }
 
         prevA = gamepad.a;
@@ -66,7 +65,8 @@ public class Slide {
     public void triggerControl(float power) {
         if (Math.abs(power) < 0.01) {
             if (controlMode != ControlMode.POS_CONTROL) {
-                positionControl(getPosition(), holdPower);
+                setGoal(getExtension());
+                positionControl(goal);
             }
         } else {
             if (controlMode != ControlMode.PWR_CONTROL) {
@@ -77,23 +77,23 @@ public class Slide {
             slideMotor.setPower(power);
         }
 
-        opmode.telemetry.addData("Slide", "curPos %d, orig pos %d, diff %d", (int) (getPosition() * ticksPerLength), origPos, (int) (getPosition() * ticksPerLength) - origPos);
-        opmode.telemetry.update();
+        /*opmode.telemetry.addData("Slide", "curPos %d, orig pos %d, diff %d", (int) (getExtension() * ticksPerLength), origPos, (int) (getExtension() * ticksPerLength) - origPos);
+        opmode.telemetry.update();*/
     }
 
-    private void positionControl(double pos, double power) {
+    private void positionControl(double extension) {
         controlMode = ControlMode.POS_CONTROL;
         slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        slideMotor.setPower(power);
-        int ticks = (int) (pos * ticksPerLength);
-        slideMotor.setTargetPosition(ticks);
+        slideMotor.setPower(maxPosPower);
+        int pos = (int) (extension * ticksPerLength);
+        slideMotor.setTargetPosition(pos);
     }
 
-    private double getPosition() {
+    public double getExtension() {
         return (double) slideMotor.getCurrentPosition() / ticksPerLength;
     }
 
-    public void setGoal(double pos) {
-        goal = pos;
+    public void setGoal(double extension) {
+        goal = extension;
     }
 }
