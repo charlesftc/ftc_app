@@ -31,8 +31,8 @@ public class Elbow {
     private boolean prevRB = false;
 
     private double storedAngle;
-    private boolean prevLeft = false;
-    private boolean prevUp = false;
+    private boolean prevX = false;
+    private boolean prevY = false;
 
     public Elbow(Teleop1 opmode, Gamepad gamepad) {
         this.opmode = opmode;
@@ -59,14 +59,14 @@ public class Elbow {
             stickControl(power);
         }
 
-        if (prevLeft && !gamepad.dpad_left) {
+        if (prevX && !gamepad.x) {
             storedAngle = getAngle();
-        } else if (prevUp && !gamepad.dpad_up) {
+        } else if (prevY && !gamepad.y) {
             goal = storedAngle;
         }
 
-        prevLeft = gamepad.dpad_left;
-        prevUp = gamepad.dpad_up;
+        prevX = gamepad.x;
+        prevY = gamepad.y;
     }
 
     private void stickControl(float power) {

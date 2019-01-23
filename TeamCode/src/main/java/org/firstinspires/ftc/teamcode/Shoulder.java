@@ -40,8 +40,11 @@ public class Shoulder {
     private boolean prevY = false;
 
     private int curPos;
-    //private int holdPos;
+
     private int verticalEncoderCount;
+    private int ticksToVertical  = -3234;
+    private int startPos;
+
     private int ticksPerRev = 1680 * 8;
     private boolean hasSetVertical = false;
     private int nullZoneRadius = 0;
@@ -62,10 +65,13 @@ public class Shoulder {
 
         pwmControl = new ShoulderPWMControl(shoulderMotor, gamepad);
         pwmControl.start();
+
+        updateCurPos();
+        startPos = curPos;
     }
 
     public void control(double stickPos) {
-        curPos = shoulderMotor.getCurrentPosition();
+        updateCurPos();
         handleSetVertical();
 
         if (Math.abs(stickPos) > 0.01) {
@@ -88,7 +94,8 @@ public class Shoulder {
         prevY = gamepad.y;
 
         opmode.telemetry.addData("ShoulderPosTest", "cur angle %.3f, goal angle %.3f", getAngle(), goal);
-        //opmode.telemetry.update();
+        opmode.telemetry.addData("Shoulder", "curPos %d, startPos %d, ticksToCurPos %d", curPos, startPos, curPos - startPos);
+        opmode.telemetry.update();
     }
 
     public void stickControl(double targetVel) {
@@ -168,6 +175,10 @@ public class Shoulder {
         }
     }
 
+    private void updateCurPos() {
+        curPos = shoulderMotor.getCurrentPosition();
+    }
+
     private void holdPos(int pos) {
         controlMode = ControlMode.POS_CONTROL;
         shoulderMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -181,12 +192,17 @@ public class Shoulder {
     }
 
     private void handleSetVertical() {
-        if (prevLB && !gamepad.left_bumper) {
+        if (prevLB && !gamepad.left_bumper && gamepad.right_bumper) {
             verticalEncoderCount = curPos;
             hasSetVertical = true;
         }
 
         prevLB = gamepad.left_bumper;
+    }
+
+    public void setVertical() {
+        verticalEncoderCount = startPos + ticksToVertical;
+        hasSetVertical = true;
     }
 
     private double adjustForGravity(double commandVel) {

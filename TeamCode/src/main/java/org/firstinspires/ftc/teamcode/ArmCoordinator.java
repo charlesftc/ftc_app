@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.util.Range;
 
 import static java.lang.Double.NaN;
 
-public class ServoElbow {
+public class ArmCoordinator {
     private enum ControlMode {
         PWR_CONTROL, POS_CONTROL;
     }
@@ -47,7 +47,7 @@ public class ServoElbow {
 
     private double prevTime;
 
-    public ServoElbow(Teleop1 opmode, Gamepad gamepad) {
+    public ArmCoordinator(Teleop1 opmode, Gamepad gamepad) {
         this.opmode = opmode;
         this.gamepad = gamepad;
 

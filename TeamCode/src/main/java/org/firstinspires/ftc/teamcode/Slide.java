@@ -22,8 +22,8 @@ public class Slide {
     private double goal = NaN;
 
     private double storedExt;
-    private boolean prevA = false;
-    private boolean prevB = false;
+    private boolean prevX = false;
+    private boolean prevY = false;
     ///private RPSCalculator rpsCalc;
 
     public Slide(Teleop1 opmode, Gamepad gamepad) {
@@ -52,14 +52,14 @@ public class Slide {
             triggerControl(power);
         }
 
-        if (prevA && !gamepad.a) {
+        if (prevX && !gamepad.x) {
             storedExt = getExtension();
-        } else if (prevB && !gamepad.b) {
+        } else if (prevY && !gamepad.y) {
             goal = storedExt;
         }
 
-        prevA = gamepad.a;
-        prevB = gamepad.b;
+        prevX = gamepad.x;
+        prevY = gamepad.y;
     }
 
     public void triggerControl(float power) {
