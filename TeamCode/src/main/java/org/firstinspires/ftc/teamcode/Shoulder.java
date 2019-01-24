@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -17,7 +18,7 @@ public class Shoulder {
 
     private ElapsedTime runtime = new ElapsedTime();
     private double prevTime = 0;
-    private Teleop1 opmode;
+    private LinearOpMode opmode;
     private Gamepad gamepad;
     private DcMotorEx shoulderMotor;
     private ShoulderPWMControl pwmControl;
@@ -35,14 +36,14 @@ public class Shoulder {
 
     private double goal = NaN;
 
-    private double storedAngle;
+/*    private double storedAngle;
     private boolean prevX = false;
-    private boolean prevY = false;
+    private boolean prevY = false;*/
 
     private int curPos;
 
     private int verticalEncoderCount;
-    private int ticksToVertical  = -3234;
+    private int ticksToVertical = -3234;
     private int startPos;
 
     private int ticksPerRev = 1680 * 8;
@@ -55,7 +56,7 @@ public class Shoulder {
     private boolean prevA = false;
     private boolean prevB = false;*/
 
-    public Shoulder(Teleop1 opmode, Gamepad gamepad) {
+    public Shoulder(LinearOpMode opmode, Gamepad gamepad) {
         this.opmode = opmode;
         this.gamepad = gamepad;
 
@@ -63,11 +64,12 @@ public class Shoulder {
         //shoulderMotor.setDirection(DcMotor.Direction.FORWARD);
         shoulderMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        pwmControl = new ShoulderPWMControl(shoulderMotor, gamepad);
+        pwmControl = new ShoulderPWMControl(opmode, shoulderMotor, gamepad);
         pwmControl.start();
 
         updateCurPos();
         startPos = curPos;
+        setVertical();
     }
 
     public void control(double stickPos) {
@@ -84,18 +86,18 @@ public class Shoulder {
             stickControl(stickPos);
         }
 
-        if (prevX && !gamepad.x) {
+/*        if (prevX && !gamepad.x) {
             storedAngle = getAngle();
         } else if (prevY && !gamepad.y) {
             goal = storedAngle;
         }
 
         prevX = gamepad.x;
-        prevY = gamepad.y;
+        prevY = gamepad.y;*/
 
-        opmode.telemetry.addData("ShoulderPosTest", "cur angle %.3f, goal angle %.3f", getAngle(), goal);
-        opmode.telemetry.addData("Shoulder", "curPos %d, startPos %d, ticksToCurPos %d", curPos, startPos, curPos - startPos);
-        opmode.telemetry.update();
+        //opmode.telemetry.addData("ShoulderPosTest", "cur angle %.3f, goal angle %.3f, vert %d", getAngle(), goal, verticalEncoderCount);
+        //opmode.telemetry.addData("Shoulder", "curPos %d, startPos %d, ticksToCurPos %d", curPos, startPos, curPos - startPos);
+        //opmode.telemetry.update();
     }
 
     public void stickControl(double targetVel) {
@@ -192,7 +194,7 @@ public class Shoulder {
     }
 
     private void handleSetVertical() {
-        if (prevLB && !gamepad.left_bumper && gamepad.right_bumper) {
+        if ((prevLB && !gamepad.left_bumper) && gamepad.right_bumper) {
             verticalEncoderCount = curPos;
             hasSetVertical = true;
         }

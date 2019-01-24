@@ -1,11 +1,12 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 public class DiffDrive {
     //private ElapsedTime runtime = new ElapsedTime();
-    private Teleop1 opmode;
+    private LinearOpMode opmode;
     private Gamepad gamepad;
     private DcMotor leftDrive;
     private DcMotor rightDrive;
@@ -23,7 +24,7 @@ public class DiffDrive {
     private boolean prevRight = false;
     private boolean prevLeft = false;
 
-    public DiffDrive(Teleop1 opmode, Gamepad gamepad) {
+    public DiffDrive(LinearOpMode opmode, Gamepad gamepad) {
         this.opmode = opmode;
         this.gamepad = gamepad;
 

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -15,7 +16,7 @@ public class ServoElbow {
     }
 
     private ElapsedTime runtime = new ElapsedTime();
-    private Teleop1 opmode;
+    private LinearOpMode opmode;
     private Gamepad gamepad;
     private CRServo elbowLeft;
     private CRServo elbowRight;
@@ -47,7 +48,7 @@ public class ServoElbow {
 
     private double prevTime;
 
-    public ServoElbow(Teleop1 opmode, Gamepad gamepad) {
+    public ServoElbow(LinearOpMode opmode, Gamepad gamepad) {
         this.opmode = opmode;
         this.gamepad = gamepad;
 
@@ -73,14 +74,14 @@ public class ServoElbow {
             stickControl(power);
         }
 
-        if (prevX && !gamepad.x) {
+        /*if (prevX && !gamepad.x) {
             storedAngle = getAngle();
         } else if (prevY && !gamepad.y) {
             goal = storedAngle;
         }
 
         prevX = gamepad.x;
-        prevY = gamepad.y;
+        prevY = gamepad.y;*/
 
         //opmode.telemetry.addData("ServoElbow", "kP %f, kI %f, maxI %f, i %f", kP, kI * 1000, maxIntegral, integral);
         //opmode.telemetry.update();

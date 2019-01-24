@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
@@ -10,7 +11,7 @@ public class Slide {
         PWR_CONTROL, POS_CONTROL;
     }
 
-    private Teleop1 opmode;
+    private LinearOpMode opmode;
     private Gamepad gamepad;
     private DcMotor slideMotor;
     private ControlMode controlMode = ControlMode.POS_CONTROL;
@@ -21,12 +22,12 @@ public class Slide {
 
     private double goal = NaN;
 
-    private double storedExt;
+/*    private double storedExt;
     private boolean prevX = false;
-    private boolean prevY = false;
+    private boolean prevY = false;*/
     ///private RPSCalculator rpsCalc;
 
-    public Slide(Teleop1 opmode, Gamepad gamepad) {
+    public Slide(LinearOpMode opmode, Gamepad gamepad) {
         this.opmode = opmode;
         this.gamepad = gamepad;
 
@@ -52,14 +53,14 @@ public class Slide {
             triggerControl(power);
         }
 
-        if (prevX && !gamepad.x) {
+        /*if (prevX && !gamepad.x) {
             storedExt = getExtension();
         } else if (prevY && !gamepad.y) {
             goal = storedExt;
         }
 
         prevX = gamepad.x;
-        prevY = gamepad.y;
+        prevY = gamepad.y;*/
     }
 
     public void triggerControl(float power) {
@@ -85,12 +86,12 @@ public class Slide {
         controlMode = ControlMode.POS_CONTROL;
         slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slideMotor.setPower(maxPosPower);
-        int pos = (int) (extension * ticksPerLength);
+        int pos = (int) (-extension * ticksPerLength);
         slideMotor.setTargetPosition(pos);
     }
 
     public double getExtension() {
-        return (double) slideMotor.getCurrentPosition() / ticksPerLength;
+        return -(double) slideMotor.getCurrentPosition() / ticksPerLength;
     }
 
     public void setGoal(double extension) {
