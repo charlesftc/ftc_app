@@ -33,8 +33,8 @@ public class DiffDrive {
 
         leftDrive.setDirection(DcMotor.Direction.FORWARD);
         rightDrive.setDirection(DcMotor.Direction.REVERSE);
-        //leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     public void control(double leftY, double rightX) {

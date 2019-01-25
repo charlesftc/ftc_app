@@ -23,7 +23,8 @@ public class ArmCoordinator {
     private double intakePos1[] = {};
     private double drivingPos[] = {-25, 0, 3.5};
     private double unfoldPos[] = {};
-    private double samplePos[] = {-110, 0, 90};
+    private double samplePos[] = {-123, 0, 100};
+    private double verticalPos[] = {0, 0, 125};
 
     private boolean prevX = false;
     private boolean prevY = false;
@@ -68,7 +69,7 @@ public class ArmCoordinator {
                 setScoringPos1();
             }
 
-            if (prevA && !gamepad.a) {
+            if (prevA && !gamepad.a && !gamepad.start) {
                 setDrivingPos();
             }
 
@@ -95,6 +96,10 @@ public class ArmCoordinator {
 
     public void setSamplePos() {
         setGoals(samplePos);
+    }
+
+    public void setVerticalPos() {
+        setGoals(verticalPos);
     }
 
     private void setGoals(double goals[]) {

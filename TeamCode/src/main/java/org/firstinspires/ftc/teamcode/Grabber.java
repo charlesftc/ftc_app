@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -8,7 +9,7 @@ import com.qualcomm.robotcore.util.Range;
 
 public class Grabber {
     //private ElapsedTime runtime = new ElapsedTime();
-    private Teleop1 opmode;
+    private LinearOpMode opmode;
     private Gamepad gamepad;
     private CRServo leftGrabber;
     private CRServo rightGrabber;
@@ -18,7 +19,7 @@ public class Grabber {
     boolean prevLeftBumper = false;
     boolean prevRightBumper = false;
 
-    public Grabber(Teleop1 opmode, Gamepad gamepad) {
+    public Grabber(LinearOpMode opmode, Gamepad gamepad) {
         this.opmode = opmode;
         this.gamepad = gamepad;
 
@@ -89,5 +90,15 @@ public class Grabber {
 
         //opmode.telemetry.addData("grabber", "grabbing, releasing", grabbing, releasing);
         //opmode.telemetry.update();
+    }
+
+    public void go(double pwr, long millis) {
+        leftGrabber.setPower(pwr);
+        rightGrabber.setPower(pwr);
+
+        opmode.sleep(millis);
+
+        leftGrabber.setPower(0);
+        rightGrabber.setPower(0);
     }
 }

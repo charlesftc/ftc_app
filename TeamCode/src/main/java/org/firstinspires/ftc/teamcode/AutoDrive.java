@@ -29,9 +29,14 @@ public class AutoDrive {
     private double drivePower = 0.25;
     private double turnPower = 0.25;
 
+    private double slowDrivePower = 0.05;
+    private double slowTurnPower = 0.05;
+
+    private double driveAdjustment = -3;
+
     private int ticksPerInch = 89;
-    private double kDrive = 0.0015;
-    private double kTurn = 0.005;
+    private double kDrive = 0.001;
+    private double kTurn = 0.004;
 
     private boolean busy = false;
 
@@ -86,8 +91,34 @@ public class AutoDrive {
         resetDistance();
         double heading = getHeading();
         busy = true;
+        double distance = inches + driveAdjustment;
 
-        while (opmode.opModeIsActive() && Math.abs(distanceTraveled()) < inches) {
+        while (opmode.opModeIsActive() && Math.abs(distanceTraveled()) < distance) {
+            double errorHeading = getHeading() - heading;
+            double turn = errorHeading * kDrive;
+            turn = Range.clip(turn, -slowTurnPower, slowTurnPower);
+
+            double sign = Math.copySign(1.0, inches);
+            leftDrive.setPower((sign * slowDrivePower) + turn);
+            rightDrive.setPower((sign * slowDrivePower) - turn);
+
+            myStuff.setValue("errorHeading %.2f, heading %.2f, turn %.2f", errorHeading, heading, turn);
+
+            opmode.telemetry.update();
+
+            opmode.sleep(20);
+        }
+
+        busy = false;
+    }
+
+    public void slowDrive(double inches) {
+        resetDistance();
+        double heading = getHeading();
+        busy = true;
+        double distance = inches + driveAdjustment;
+
+        while (opmode.opModeIsActive() && Math.abs(distanceTraveled()) < distance) {
             double errorHeading = getHeading() - heading;
             double turn = errorHeading * kDrive;
             turn = Range.clip(turn, -turnPower, turnPower);
@@ -95,10 +126,6 @@ public class AutoDrive {
             double sign = Math.copySign(1.0, inches);
             leftDrive.setPower((sign * drivePower) + turn);
             rightDrive.setPower((sign * drivePower) - turn);
-
-            myStuff.setValue("errorHeading %.2f, heading %.2f, turn %.2f", errorHeading, heading, turn);
-
-            opmode.telemetry.update();
 
             opmode.sleep(20);
         }
