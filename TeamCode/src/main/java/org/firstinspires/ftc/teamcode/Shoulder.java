@@ -65,7 +65,7 @@ public class Shoulder {
         //shoulderMotor.setDirection(DcMotor.Direction.FORWARD);
         shoulderMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        pwmControl = new ShoulderPWMControl(opmode, shoulderMotor, gamepad);
+        pwmControl = new ShoulderPWMControl(shoulderMotor);
         pwmControl.start();
 
         updateCurPos();
@@ -131,9 +131,9 @@ public class Shoulder {
                 shoulderMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             }
 
-            pwmControl.setCommandVel(commandVel, getAngle());
+            pwmControl.setCommandVel(commandVel);
         } else {
-            pwmControl.setCommandVel(NaN, getAngle());
+            pwmControl.setCommandVel(NaN);
 
             if (controlMode != ControlMode.PWR_CONTROL) {
                 controlMode = ControlMode.PWR_CONTROL;
