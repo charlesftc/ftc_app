@@ -12,8 +12,8 @@ public class DiffDrive {
     private DcMotor rightDrive;
     //private RPSCalculator rpsCalcL = new RPSCalculator(leftDrive, 2240, 0.05);
     //private RPSCalculator rpsCalcR = new RPSCalculator(rightDrive, 2240, 0.05);
-    private double maxSpeeds[] = {0.5, 0.8, 1.0};
-    private double turnSpeeds[] = {0.3, 0.5, 0.7};
+    private double maxSpeeds[] = {0.2, 0.65, 1.0};
+    private double turnSpeeds[] = {0.1, 0.3, 0.5};
 
     private double exponent = 1.5;
     //private double accelRate = 0.4;

@@ -31,6 +31,7 @@ public class ServoElbow {
     private double maxPosPower = 0.7;
 
     private double goal = NaN;
+    private boolean busy = false;
 
     private double storedAngle;
     private boolean prevX = false;
@@ -107,6 +108,10 @@ public class ServoElbow {
         elbowLeft.setPower(power);
         elbowRight.setPower(power);
 
+        if (Math.abs(errorPos) < 3) {
+            busy = false;
+        }
+
         //opmode.telemetry.addData("Error", "error %f", errorPos);
     }
 
@@ -136,6 +141,11 @@ public class ServoElbow {
 
     public void setGoal(double angle) {
         goal = angle;
+        busy = !Double.isNaN(angle);
+    }
+
+    public boolean isBusy() {
+        return busy;
     }
 
     public void killThread() {

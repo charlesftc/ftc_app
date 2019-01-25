@@ -21,6 +21,7 @@ public class Slide {
     private double maxPosPower = 0.8;
 
     private double goal = NaN;
+    private boolean busy = false;
 
 /*    private double storedExt;
     private boolean prevX = false;
@@ -66,7 +67,7 @@ public class Slide {
     public void triggerControl(float power) {
         if (Math.abs(power) < 0.01) {
             if (controlMode != ControlMode.POS_CONTROL) {
-                setGoal(getExtension());
+                goal = getExtension();
                 positionControl(goal);
             }
         } else {
@@ -88,6 +89,10 @@ public class Slide {
         slideMotor.setPower(maxPosPower);
         int pos = (int) (-extension * ticksPerLength);
         slideMotor.setTargetPosition(pos);
+
+        if (Math.abs(getExtension() - extension) < 0.03) {
+            busy = false;
+        }
     }
 
     public double getExtension() {
@@ -96,5 +101,10 @@ public class Slide {
 
     public void setGoal(double extension) {
         goal = extension;
+        busy = !Double.isNaN(extension);
+    }
+
+    public boolean isBusy() {
+        return busy;
     }
 }

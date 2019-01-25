@@ -10,8 +10,8 @@ import java.util.ArrayList;
 public class Teleop1 extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
 
-    private boolean prevX = false;
-    private boolean prevY = false;
+    /*private boolean prevA = false;
+    private boolean prevB = false;*/
 
     @Override
     public void runOpMode() {
@@ -25,7 +25,7 @@ public class Teleop1 extends LinearOpMode {
 
         ArmCoordinator armCoordinator = new ArmCoordinator(this, gamepad1, shoulder, slide, elbow);
 
-        AutoDrive autoDrive = new AutoDrive(this, gamepad2);
+        AutoDrive autoDrive = new AutoDrive(this, gamepad1);
 
         //telemetry.addData("Status", "Initialized");
         //telemetry.update();
@@ -41,16 +41,16 @@ public class Teleop1 extends LinearOpMode {
             slide.control(gamepad1.right_trigger - gamepad1.left_trigger);
             grabber.control();
 
-            if (prevX && !gamepad2.x) {
-                autoDrive.drive(36);
-            } else if (prevY && !gamepad2.y) {
+            /*if (prevA && !gamepad2.a && !gamepad2.start) {
+                autoDrive.drive(12);
+            } else if (prevB && !gamepad2.b && !gamepad2.start) {
                 autoDrive.turn(15);
             }
 
-            prevX = gamepad2.x;
-            prevY = gamepad2.y;
+            prevA = gamepad1.a;
+            prevB = gamepad1.b;*/
 
-            telemetry.update();
+            //telemetry.update();
         }
 
         shoulder.killThread();

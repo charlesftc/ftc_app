@@ -27,11 +27,13 @@ public class AutoDrive {
     private int startTicksRight;
 
     private double drivePower = 0.25;
-    private double turnPower = 0.2;
+    private double turnPower = 0.25;
 
-    private int ticksPerInch = 178;
-    private double kDrive = 0.002;
+    private int ticksPerInch = 89;
+    private double kDrive = 0.0015;
     private double kTurn = 0.005;
+
+    private boolean busy = false;
 
     BNO055IMU imu;
 
@@ -51,11 +53,11 @@ public class AutoDrive {
 
         initImu();
 
-        myStuff = opmode.telemetry.addData("ShoulderPWM", "");
+        myStuff = opmode.telemetry.addData("AutoDrive", "");
 
         resetDistance();
 
-        opmode.telemetry.addLine().addData("Joints", new Func<String>() {
+        opmode.telemetry.addLine().addData("Stuff", new Func<String>() {
             @Override
             public String value() {
                 return String.format(Locale.getDefault(), "currentHeading %.2f, inches %.2f",
@@ -83,14 +85,16 @@ public class AutoDrive {
     public void drive(double inches) {
         resetDistance();
         double heading = getHeading();
+        busy = true;
 
-        while (opmode.opModeIsActive() && distanceTraveled() < inches) {
+        while (opmode.opModeIsActive() && Math.abs(distanceTraveled()) < inches) {
             double errorHeading = getHeading() - heading;
             double turn = errorHeading * kDrive;
             turn = Range.clip(turn, -turnPower, turnPower);
 
-            leftDrive.setPower(drivePower + turn);
-            rightDrive.setPower(drivePower - turn);
+            double sign = Math.copySign(1.0, inches);
+            leftDrive.setPower((sign * drivePower) + turn);
+            rightDrive.setPower((sign * drivePower) - turn);
 
             myStuff.setValue("errorHeading %.2f, heading %.2f, turn %.2f", errorHeading, heading, turn);
 
@@ -98,10 +102,13 @@ public class AutoDrive {
 
             opmode.sleep(20);
         }
+
+        busy = false;
     }
 
     public void turn(double heading) {
         double errorHeading;
+        busy = true;
 
         do {
             errorHeading = getHeading() - heading;
@@ -111,11 +118,13 @@ public class AutoDrive {
             leftDrive.setPower(turn);
             rightDrive.setPower(-turn);
 
-            myStuff.setValue("errorHeading %.2f, heading %.2f, turn %.2f", errorHeading, heading, turn);
-            opmode.telemetry.update();
+            /*myStuff.setValue("errorHeading %.2f, heading %.2f, turn %.2f", errorHeading, heading, turn);
+            opmode.telemetry.update();*/
 
             opmode.sleep(20);
-        } while (opmode.opModeIsActive() && Math.abs(errorHeading) > 3);
+        } while (opmode.opModeIsActive() && Math.abs(errorHeading) > 1.5);
+
+        busy = false;
 
     }
 
@@ -134,5 +143,9 @@ public class AutoDrive {
     private void resetDistance() {
         startTicksLeft = leftDrive.getCurrentPosition();
         startTicksRight = rightDrive.getCurrentPosition();
+    }
+
+    public boolean isBusy() {
+        return busy;
     }
 }

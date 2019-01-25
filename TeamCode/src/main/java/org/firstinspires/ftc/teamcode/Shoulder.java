@@ -31,10 +31,11 @@ public class Shoulder {
     private double maxGravityAdjustment = 0.2;
     private double holdPower = 0.2;
 
-    private double kP = 0.04;
+    private double kP = 0.045;
     private double maxPosPower = 0.65;
 
     private double goal = NaN;
+    private boolean busy = false;
 
 /*    private double storedAngle;
     private boolean prevX = false;
@@ -121,7 +122,7 @@ public class Shoulder {
 
         if (shouldHoldPos(targetVel, shoulderMotor.getVelocity(AngleUnit.DEGREES) / 8)) {
             if (controlMode != ControlMode.POS_CONTROL) {
-                setGoal(getAngle());
+                goal = getAngle();
                 positionControl(goal);
             }
         } else if (shouldUsePwm(commandVel)) {
@@ -170,10 +171,11 @@ public class Shoulder {
 
         double velocity = Range.clip(errorAngle * effectiveKP, -maxPosPower, maxPosPower);
 
-        if (Math.abs(errorAngle) > 2) {
+        if (Math.abs(errorAngle) > 3.0) {
             stickControl(velocity);
         } else {
             holdAngle(angle);
+            busy = false;
         }
     }
 
@@ -235,7 +237,12 @@ public class Shoulder {
         return ((double) (curPos - verticalEncoderCount) / ticksPerRev) * 360;
     }
 
+    public boolean isBusy() {
+        return busy;
+    }
+
     public void setGoal(double angle) {
         goal = angle;
+        busy = !Double.isNaN(angle);
     }
 }
