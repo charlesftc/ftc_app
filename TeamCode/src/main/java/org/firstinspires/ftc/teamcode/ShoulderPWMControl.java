@@ -29,7 +29,7 @@ public class ShoulderPWMControl extends Thread {
     public void run() {
         runtime = new ElapsedTime();
 
-        while (run = true) {
+        while (run) {
             if (Double.isNaN(commandVel) || commandVel == 0) {
                 continue;
             }

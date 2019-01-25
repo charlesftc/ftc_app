@@ -114,7 +114,11 @@ public class ArmCoordinator {
 
     public void waitTillDone() {
         while (isBusy()) {
-            opmode.sleep(50);
+            opmode.sleep(10);
+
+            shoulder.control(0);
+            slide.control(0);
+            elbow.control(0);
 
             if (!opmode.opModeIsActive()) {
                 break;

@@ -22,7 +22,7 @@ public class RPSCalculator extends Thread {
         prevTick = motor.getCurrentPosition();
         runtime = new ElapsedTime();
 
-        while (run = true) {
+        while (run == true) {
             int tick = motor.getCurrentPosition();
             int deltaTick = tick - prevTick;
             double ticksPerSecond = deltaTick / waitTime;

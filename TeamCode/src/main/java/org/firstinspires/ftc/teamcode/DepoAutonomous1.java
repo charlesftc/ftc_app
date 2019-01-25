@@ -8,18 +8,19 @@ import org.firstinspires.ftc.teamcode.ServoElbow;
 import org.firstinspires.ftc.teamcode.Slide;
 import org.firstinspires.ftc.teamcode.DiffDrive;*/
 
-@Autonomous(name="Autonomous1", group="Linear")
-public class Autonomous1 extends LinearOpMode {
-    private Shoulder shoulder = new Shoulder(this, gamepad1);
-    private ServoElbow elbow = new ServoElbow(this, gamepad1);
-    private Slide slide = new Slide(this, gamepad1);
-    private Grabber grabber = new Grabber(this, gamepad1);
-
-    private ArmCoordinator armCoordinator = new ArmCoordinator(this, gamepad1, shoulder, slide, elbow);
-    private AutoDrive autoDrive = new AutoDrive(this, gamepad1);
-
+@Autonomous(name="DepoAutonomous1", group="Linear")
+public class DepoAutonomous1 extends LinearOpMode {
     @Override
     public void runOpMode() {
+        Shoulder shoulder = new Shoulder(this, gamepad1);
+        ServoElbow elbow = new ServoElbow(this, gamepad1);
+        Slide slide = new Slide(this, gamepad1);
+        Grabber grabber = new Grabber(this, gamepad1);
+
+        ArmCoordinator armCoordinator = new ArmCoordinator(this, gamepad1, shoulder, slide, elbow);
+
+        AutoDrive autoDrive = new AutoDrive(this, gamepad1);
+
         waitForStart();
 
         armCoordinator.setDrivingPos();

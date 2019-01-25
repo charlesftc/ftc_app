@@ -93,7 +93,7 @@ public class ServoElbow {
         double elapsed = curTime - prevTime;
         prevTime = curTime;
 
-        double errorPos = goal - dpsCalc.getAngle();
+        double errorPos = goal - getAngle();
 
         double errorArea = Range.clip(errorPos, -3, 3) * elapsed;
 
@@ -119,7 +119,7 @@ public class ServoElbow {
         if (Math.abs(power) < 0.01) {
             if (controlMode != ControlMode.POS_CONTROL) {
                 controlMode = ControlMode.POS_CONTROL;
-                goal = dpsCalc.getAngle();
+                goal = getAngle();
                 integral = 0;
                 prevTime = runtime.milliseconds();
             }
@@ -136,7 +136,7 @@ public class ServoElbow {
     }
 
     public double getAngle() {
-        return dpsCalc.getAngle();
+        return pot.getVoltage() / 0.01222;
     }
 
     public void setGoal(double angle) {
@@ -146,9 +146,5 @@ public class ServoElbow {
 
     public boolean isBusy() {
         return busy;
-    }
-
-    public void killThread() {
-        dpsCalc.end();
     }
 }

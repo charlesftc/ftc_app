@@ -54,6 +54,5 @@ public class Teleop1 extends LinearOpMode {
         }
 
         shoulder.killThread();
-        elbow.killThread();
     }
 }

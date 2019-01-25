@@ -19,7 +19,7 @@ public class DPSCalculator extends Thread {
     public void run() {
         prevPos = getAngle();
 
-        while (run = true) {
+        while (run == true) {
             double pos = getAngle();
             double deltaPos = pos - prevPos;
             DPS = deltaPos / waitTime;

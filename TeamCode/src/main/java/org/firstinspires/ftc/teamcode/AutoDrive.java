@@ -26,16 +26,16 @@ public class AutoDrive {
     private int startTicksLeft;
     private int startTicksRight;
 
-    private double drivePower = 0.25;
+    private double drivePower = 0.3;
     private double turnPower = 0.25;
 
-    private double slowDrivePower = 0.05;
+    private double slowDrivePower = 0.1;
     private double slowTurnPower = 0.05;
 
-    private double driveAdjustment = -3;
+    private double driveAdjustment = -2;
 
     private int ticksPerInch = 89;
-    private double kDrive = 0.001;
+    private double kDrive = 0.0015;
     private double kTurn = 0.004;
 
     private boolean busy = false;
@@ -90,10 +90,10 @@ public class AutoDrive {
     public void drive(double inches) {
         resetDistance();
         double heading = getHeading();
-        busy = true;
         double distance = inches + driveAdjustment;
+        busy = true;
 
-        while (opmode.opModeIsActive() && Math.abs(distanceTraveled()) < distance) {
+        while (opmode.opModeIsActive() && Math.abs(distanceTraveled()) < Math.abs(distance)) {
             double errorHeading = getHeading() - heading;
             double turn = errorHeading * kDrive;
             turn = Range.clip(turn, -slowTurnPower, slowTurnPower);
@@ -103,7 +103,6 @@ public class AutoDrive {
             rightDrive.setPower((sign * slowDrivePower) - turn);
 
             myStuff.setValue("errorHeading %.2f, heading %.2f, turn %.2f", errorHeading, heading, turn);
-
             opmode.telemetry.update();
 
             opmode.sleep(20);
@@ -115,10 +114,10 @@ public class AutoDrive {
     public void slowDrive(double inches) {
         resetDistance();
         double heading = getHeading();
-        busy = true;
         double distance = inches + driveAdjustment;
+        busy = true;
 
-        while (opmode.opModeIsActive() && Math.abs(distanceTraveled()) < distance) {
+        while (opmode.opModeIsActive() && Math.abs(distanceTraveled()) < Math.abs(distance)) {
             double errorHeading = getHeading() - heading;
             double turn = errorHeading * kDrive;
             turn = Range.clip(turn, -turnPower, turnPower);
