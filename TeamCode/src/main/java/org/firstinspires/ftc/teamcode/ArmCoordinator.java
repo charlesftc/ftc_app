@@ -17,14 +17,15 @@ public class ArmCoordinator {
     private Slide slide;
     private ServoElbow elbow;
 
-    private double foldPos[] = {88.3, 0, 3.5};
+    private double foldPos[] = {88.3, 0, 10};
     private double preScoringPos1[] = {NaN, 0.1, 60};
     private double scoringPos1[] = {9, 0.91, 45};
-    private double intakePos1[] = {};
-    private double drivingPos[] = {-25, 0, 3.5};
+    private double intakePos1[] = {-117, 0.67, 110};
+    private double drivingPos[] = {-25, 0, 10};
     private double unfoldPos[] = {};
-    private double samplePos[] = {-123, 0, 100};
-    private double verticalPos[] = {0, 0, 125};
+    private double preSamplePos[] = {-60, 0, 10};
+    private double samplePos[] = {-124, 0, 96};
+    private double verticalPos[] = {0, 0, 120};
 
     private boolean prevX = false;
     private boolean prevY = false;
@@ -69,13 +70,23 @@ public class ArmCoordinator {
                 setScoringPos1();
             }
 
-            if (prevA && !gamepad.a && !gamepad.start) {
+            if (prevA && !gamepad.a) {
                 setDrivingPos();
+            }
+
+            if (prevDown && !gamepad.dpad_down) {
+                setIntakePos1();
+            }
+
+            if (prevUp && !gamepad.dpad_up) {
+                setFoldPos();
             }
 
             prevX = gamepad.x;
             prevY = gamepad.y;
             prevA = gamepad.a;
+            prevDown = gamepad.dpad_down;
+            prevUp = gamepad.dpad_up;
         }
 
         opmode.telemetry.addData("isBusy()", "%b", isBusy());
@@ -94,12 +105,24 @@ public class ArmCoordinator {
         setGoals(drivingPos);
     }
 
+    public void setPreSamplePos() {
+        setGoals(preSamplePos);
+    }
+
     public void setSamplePos() {
         setGoals(samplePos);
     }
 
     public void setVerticalPos() {
         setGoals(verticalPos);
+    }
+
+    public void setFoldPos() {
+        setGoals(foldPos);
+    }
+
+    public void setIntakePos1() {
+        setGoals(intakePos1);
     }
 
     private void setGoals(double goals[]) {
@@ -112,7 +135,9 @@ public class ArmCoordinator {
         return shoulder.isBusy() || slide.isBusy() || elbow.isBusy();
     }
 
-    public void waitTillDone() {
+    public void waitTillDone(double timeOut) {
+        double startTime = opmode.getRuntime();
+
         while (isBusy()) {
             opmode.sleep(10);
 
@@ -123,6 +148,26 @@ public class ArmCoordinator {
             if (!opmode.opModeIsActive()) {
                 break;
             }
+
+            if (opmode.getRuntime() - startTime > timeOut) {
+                break;
+            }
         }
+
+        elbow.stop();
+    }
+
+    public void asyncMove(double elbowPwr) {
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                waitTillDone(10);
+                elbow.setMaxPosPower(0.7);
+            }
+        };
+
+        elbow.setMaxPosPower(elbowPwr);
+        Thread thread = new Thread(r);
+        thread.start();
     }
 }

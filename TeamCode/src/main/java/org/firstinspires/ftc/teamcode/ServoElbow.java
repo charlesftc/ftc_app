@@ -144,6 +144,15 @@ public class ServoElbow {
         busy = !Double.isNaN(angle);
     }
 
+    public void stop() {
+        elbowLeft.setPower(0);
+        elbowRight.setPower(0);
+    }
+
+    public void setMaxPosPower(double pwr) {
+        maxPosPower = pwr;
+    }
+
     public boolean isBusy() {
         return busy;
     }

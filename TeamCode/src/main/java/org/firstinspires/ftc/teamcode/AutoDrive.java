@@ -26,19 +26,19 @@ public class AutoDrive {
     private int startTicksLeft;
     private int startTicksRight;
 
-    private double drivePower = 0.3;
+    /*private double drivePower = 0.3;
     private double turnPower = 0.25;
 
     private double slowDrivePower = 0.1;
-    private double slowTurnPower = 0.05;
+    private double slowTurnPower = 0.05;*/
+
+    private double turnPower = 0.25;
 
     private double driveAdjustment = -2;
 
     private int ticksPerInch = 89;
     private double kDrive = 0.0015;
-    private double kTurn = 0.004;
-
-    private boolean busy = false;
+    private double kTurn = 0.01;
 
     BNO055IMU imu;
 
@@ -87,35 +87,15 @@ public class AutoDrive {
         }
     }
 
-    public void drive(double inches) {
+    public void drive(double inches, double drivePower) {
         resetDistance();
         double heading = getHeading();
-        double distance = inches + driveAdjustment;
-        busy = true;
 
-        while (opmode.opModeIsActive() && Math.abs(distanceTraveled()) < Math.abs(distance)) {
-            double errorHeading = getHeading() - heading;
-            double turn = errorHeading * kDrive;
-            turn = Range.clip(turn, -slowTurnPower, slowTurnPower);
+        double distance = inches;
 
-            double sign = Math.copySign(1.0, inches);
-            leftDrive.setPower((sign * slowDrivePower) + turn);
-            rightDrive.setPower((sign * slowDrivePower) - turn);
-
-            myStuff.setValue("errorHeading %.2f, heading %.2f, turn %.2f", errorHeading, heading, turn);
-            opmode.telemetry.update();
-
-            opmode.sleep(20);
+        if (Math.abs(inches) > Math.abs(driveAdjustment)) {
+            distance += (driveAdjustment * Math.copySign(1.0, inches));
         }
-
-        busy = false;
-    }
-
-    public void slowDrive(double inches) {
-        resetDistance();
-        double heading = getHeading();
-        double distance = inches + driveAdjustment;
-        busy = true;
 
         while (opmode.opModeIsActive() && Math.abs(distanceTraveled()) < Math.abs(distance)) {
             double errorHeading = getHeading() - heading;
@@ -126,15 +106,52 @@ public class AutoDrive {
             leftDrive.setPower((sign * drivePower) + turn);
             rightDrive.setPower((sign * drivePower) - turn);
 
+            myStuff.setValue("errorHeading %.2f, heading %.2f, turn %.2f", errorHeading, heading, turn);
+            opmode.telemetry.update();
+
             opmode.sleep(20);
         }
 
-        busy = false;
+        leftDrive.setPower(0);
+        rightDrive.setPower(0);
+    }
+
+    public void powerDrive(double inches, double drivePower) {
+        leftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        resetDistance();
+        double heading = getHeading();
+
+        double distance = inches;
+
+        if (Math.abs(inches) > Math.abs(driveAdjustment)) {
+            distance += (driveAdjustment * Math.copySign(1.0, inches));
+        }
+
+        while (opmode.opModeIsActive() && Math.abs(distanceTraveled()) < Math.abs(distance)) {
+            double errorHeading = getHeading() - heading;
+            double turn = errorHeading * kDrive;
+            turn = Range.clip(turn, -turnPower, turnPower);
+
+            double sign = Math.copySign(1.0, inches);
+            leftDrive.setPower((sign * drivePower) + turn);
+            rightDrive.setPower((sign * drivePower) - turn);
+
+            myStuff.setValue("errorHeading %.2f, heading %.2f, turn %.2f", errorHeading, heading, turn);
+            opmode.telemetry.update();
+
+            opmode.sleep(20);
+        }
+
+        leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftDrive.setPower(0);
+        rightDrive.setPower(0);
     }
 
     public void turn(double heading) {
         double errorHeading;
-        busy = true;
 
         do {
             errorHeading = getHeading() - heading;
@@ -150,8 +167,8 @@ public class AutoDrive {
             opmode.sleep(20);
         } while (opmode.opModeIsActive() && Math.abs(errorHeading) > 1.5);
 
-        busy = false;
-
+        leftDrive.setPower(0);
+        rightDrive.setPower(0);
     }
 
     public double getHeading(){
@@ -169,9 +186,5 @@ public class AutoDrive {
     private void resetDistance() {
         startTicksLeft = leftDrive.getCurrentPosition();
         startTicksRight = rightDrive.getCurrentPosition();
-    }
-
-    public boolean isBusy() {
-        return busy;
     }
 }

@@ -44,7 +44,8 @@ public class Shoulder {
     private int curPos;
 
     private int verticalEncoderCount;
-    private int ticksToVertical = -3234;
+    //private int ticksToVertical = -3234;
+    private int ticksToVertical = -3300;
     private int startPos;
 
     private int ticksPerRev = 1680 * 8;
@@ -52,12 +53,13 @@ public class Shoulder {
     private int nullZoneRadius = 0;
 
     private boolean prevLB = false;
+    private boolean prevRB = false;
 
     /*private boolean canAdjustPower = false;
     private boolean prevA = false;
     private boolean prevB = false;*/
 
-    public Shoulder(LinearOpMode opmode, Gamepad gamepad) {
+    public Shoulder(LinearOpMode opmode, Gamepad gamepad, boolean shouldSetVertical) {
         this.opmode = opmode;
         this.gamepad = gamepad;
 
@@ -70,7 +72,10 @@ public class Shoulder {
 
         updateCurPos();
         startPos = curPos;
-        setVertical();
+
+        if (shouldSetVertical) {
+            setVertical();
+        }
     }
 
     public void control(double stickPos) {
@@ -166,7 +171,7 @@ public class Shoulder {
         double effectiveKP = kP;
 
         if (controlMode == ControlMode.PWM_CONTROL) {
-            effectiveKP += 0.04;
+            effectiveKP += 0.1;
         }
 
         double velocity = Range.clip(errorAngle * effectiveKP, -maxPosPower, maxPosPower);
@@ -196,7 +201,7 @@ public class Shoulder {
     }
 
     private void handleSetVertical() {
-        if ((prevLB && !gamepad.left_bumper) && gamepad.right_bumper) {
+        if (prevLB && !gamepad.left_bumper) {
             verticalEncoderCount = curPos;
             hasSetVertical = true;
         }

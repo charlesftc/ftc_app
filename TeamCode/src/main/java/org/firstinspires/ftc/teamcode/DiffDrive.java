@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.util.Range;
 
 public class DiffDrive {
     //private ElapsedTime runtime = new ElapsedTime();
@@ -16,6 +17,7 @@ public class DiffDrive {
     private double turnSpeeds[] = {0.1, 0.3, 0.5};
 
     private double exponent = 1.5;
+    //private double nullZoneRadius = 0.05;
     //private double accelRate = 0.4;
 
     private boolean canAdjustSpeeds = false;
@@ -35,6 +37,8 @@ public class DiffDrive {
         rightDrive.setDirection(DcMotor.Direction.REVERSE);
         leftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        gamepad.setJoystickDeadzone((float)0.1);
     }
 
     public void control(double leftY, double rightX) {
@@ -47,6 +51,10 @@ public class DiffDrive {
 
         double driveSign = Math.copySign(1.0, drive);
         drive = driveSign * Math.pow(Math.abs(drive), exponent);
+
+        /*if (drive < nullZoneRadius) {
+            drive = 0;
+        }*/
 
         drive = drive * maxSpeeds[index];
 

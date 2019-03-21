@@ -17,7 +17,7 @@ public class Teleop1 extends LinearOpMode {
     public void runOpMode() {
         DiffDrive diffDrive = new DiffDrive(this, gamepad2);
         diffDrive.setSpeedAdjustments( true);
-        Shoulder shoulder = new Shoulder(this, gamepad1);
+        Shoulder shoulder = new Shoulder(this, gamepad1, false);
         //shoulder.setPowerAdjustments(true);
         ServoElbow elbow = new ServoElbow(this, gamepad1);
         Slide slide = new Slide(this, gamepad1);
@@ -41,9 +41,9 @@ public class Teleop1 extends LinearOpMode {
             slide.control(gamepad1.right_trigger - gamepad1.left_trigger);
             grabber.control();
 
-            /*if (prevA && !gamepad2.a && !gamepad2.start) {
+            /*if (prevA && !gamepad2.a) {
                 autoDrive.drive(12);
-            } else if (prevB && !gamepad2.b && !gamepad2.start) {
+            } else if (prevB && !gamepad2.b) {
                 autoDrive.turn(15);
             }
 

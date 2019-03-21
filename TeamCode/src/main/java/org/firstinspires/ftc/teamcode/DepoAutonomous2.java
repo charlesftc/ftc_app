@@ -8,8 +8,8 @@ import org.firstinspires.ftc.teamcode.ServoElbow;
 import org.firstinspires.ftc.teamcode.Slide;
 import org.firstinspires.ftc.teamcode.DiffDrive;*/
 
-@Autonomous(name="DepoAutonomous1", group="Linear")
-public class DepoAutonomous1 extends LinearOpMode {
+@Autonomous(name="DepoAutonomous2", group="Linear")
+public class DepoAutonomous2 extends LinearOpMode {
     @Override
     public void runOpMode() {
         Shoulder shoulder = new Shoulder(this, gamepad1, true);
@@ -37,7 +37,10 @@ public class DepoAutonomous1 extends LinearOpMode {
 
         autoDrive.drive(-6, 0.4);
 
-        armCoordinator.setDrivingPos();
+        armCoordinator.setVerticalPos();
+        armCoordinator.waitTillDone(10);
+
+        /*armCoordinator.setDrivingPos();
         armCoordinator.asyncMove(4);
 
         autoDrive.drive(-22.5, 0.4);
@@ -49,6 +52,6 @@ public class DepoAutonomous1 extends LinearOpMode {
         armCoordinator.setVerticalPos();
         armCoordinator.asyncMove(1.0);
 
-        autoDrive.powerDrive(24, 0.25);
+        autoDrive.powerDrive(24, 0.25);*/
     }
 }
