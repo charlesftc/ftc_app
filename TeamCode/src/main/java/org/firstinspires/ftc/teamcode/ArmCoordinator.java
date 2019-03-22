@@ -25,6 +25,7 @@ public class ArmCoordinator {
     private double unfoldPos[] = {};
     private double preSamplePos[] = {-60, 0, 10};
     private double samplePos[] = {-124, 0, 96};
+    private double samplePos2[] = {-124, 0.8, 96};
     private double verticalPos[] = {0, 0, 120};
 
     private boolean prevX = false;
@@ -111,6 +112,10 @@ public class ArmCoordinator {
 
     public void setSamplePos() {
         setGoals(samplePos);
+    }
+
+    public void setSamplePos2() {
+        setGoals(samplePos2);
     }
 
     public void setVerticalPos() {

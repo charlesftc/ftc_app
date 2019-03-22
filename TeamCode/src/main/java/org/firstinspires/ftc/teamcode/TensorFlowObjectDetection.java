@@ -32,6 +32,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
@@ -41,7 +42,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 import java.util.List;
 
-@TeleOp(name = "Concept: TensorFlow Object Detection", group = "Concept")
+@TeleOp(name = "TFOD", group = "Concept")
 public class TensorFlowObjectDetection extends LinearOpMode {
     private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
     private static final String LABEL_GOLD_MINERAL = "Gold Mineral";
@@ -54,12 +55,9 @@ public class TensorFlowObjectDetection extends LinearOpMode {
     @Override
     public void runOpMode() {
         initialize();
-        findGold(5, this);
-        sleep(5000);
-        shutdown();
     }
 
-    public void initialize() {
+    private void initialize() {
         initVuforia();
 
         if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
@@ -67,16 +65,17 @@ public class TensorFlowObjectDetection extends LinearOpMode {
         }
     }
 
-    public int findGold(int minRepetitions, LinearOpMode opmode) {
+    public int findGold(int minRepetitions, int delay, LinearOpMode opmode) {
         if (tfod != null) {
             tfod.activate();
+            sleep(delay);
         }
 
         int reps = 0;
         int pos = -1;
         int prevPos = -1;
 
-        while (opmode.opModeIsActive() ) {
+        while (opmode.opModeIsActive()) {
             List<Recognition> recognitions = tfod.getRecognitions();
 
             telemetry.addData("# Object Detected", recognitions.size());
@@ -119,7 +118,7 @@ public class TensorFlowObjectDetection extends LinearOpMode {
         return pos;
     }
 
-    private void shutdown() {
+    public void shutdown() {
         if (tfod != null) {
             tfod.shutdown();
         }
